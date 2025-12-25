@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.findmydoctor.ctrlpluscare.ui.screens.login.LoginScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.logintypechoose.LoginTypeChose
 import com.findmydoctor.ctrlpluscare.ui.screens.splashscreen.SplashScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.welcomescreen.WelcomeScreen
 
@@ -20,7 +22,7 @@ fun MainNavigation(){
 
         NavHost(
             navController = navController,
-            startDestination = AppRoute.Splash.route
+            startDestination = AppRoute.Login.route
         ){
             composable(AppRoute.Splash.route){
                 SplashScreen(navController)
@@ -28,6 +30,14 @@ fun MainNavigation(){
 
             composable(AppRoute.Welcome.route) {
                 WelcomeScreen(navController)
+            }
+
+            composable (AppRoute.LoginTypeChose.route){
+                LoginTypeChose(navController)
+            }
+
+            composable(AppRoute.Login.route) {
+                LoginScreen()
             }
         }
     }

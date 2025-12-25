@@ -1,18 +1,12 @@
 package com.findmydoctor.ctrlpluscare.ui.screens.welcomescreen
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.LocationOn
@@ -24,16 +18,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight.Companion.W400
 import androidx.compose.ui.text.font.FontWeight.Companion.W500
-import androidx.compose.ui.text.font.FontWeight.Companion.W700
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.findmydoctor.ctrlpluscare.R
-import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
+import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
+import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.CommonRoundCornersButton
+import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.FeatureList
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
 import com.findmydoctor.ctrlpluscare.ui.theme.TextPrimary
 
@@ -95,8 +87,11 @@ fun WelcomeScreen(navController: NavHostController) {
             )
             CommonRoundCornersButton(
                 text = "Get Started",
+                tint = PrimaryBlue,
                 onClick = {
-
+                    navController.navigate(AppRoute.LoginTypeChose.route){
+                       popUpTo(0){inclusive = true}
+                    }
                 }
             )
             Spacer(
@@ -107,76 +102,7 @@ fun WelcomeScreen(navController: NavHostController) {
 
 }
 
-@Composable
-fun FeatureList(
-    icon : ImageVector,
-    title : String,
-    subtitle : String
-){
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(start = 30.dp, end = 10.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            modifier = Modifier.background(
-                color = PrimaryBlue.copy(alpha = 0.3f),
-                shape = CircleShape
-            ).padding(10.dp).size(30.dp),
-            tint = PrimaryBlue
-        )
-        Spacer(modifier = Modifier.width(20.dp))
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = title,
-                color = TextPrimary,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = W700,
-                    fontSize = 17.5.sp
-                )
-            )
-            Text(
-                text = subtitle,
-                color = TextPrimary,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = W400,
-                    fontSize = 17.5 .sp
-                )
-            )
-        }
-    }
 
-}
-
-@Composable
-fun CommonRoundCornersButton(
-    text : String ,
-    onClick : () -> Unit
-){
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth().padding(start = 30.dp, end = 30.dp)
-            .background(
-                color = PrimaryBlue,
-                shape = RoundedCornerShape(15.dp)
-            )
-    ){
-        Text(
-            text = text,
-            color = BackgroundColor,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = W700,
-                fontSize = 17.5.sp
-            ),
-            modifier = Modifier.padding(18.dp)
-        )
-    }
-}
 
 
 
