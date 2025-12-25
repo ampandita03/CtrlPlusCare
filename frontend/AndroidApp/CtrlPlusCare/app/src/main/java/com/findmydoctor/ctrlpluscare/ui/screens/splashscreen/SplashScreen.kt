@@ -24,19 +24,45 @@ import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun SplashScreen(navController: NavHostController,viewModel: SplashScreenViewModel = koinViewModel()) {
 
     val uiState by viewModel.uiState.collectAsState()
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            // You don't need to do anything here for now
+        }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+    }
 
     LaunchedEffect(Unit,uiState) {
         delay(500)
+
+        viewModel.generateFcmToken()
         viewModel.navigate()
         if (uiState is SplashScreenUiState.Welcome)
             navController.navigate(AppRoute.Welcome.route){
                 popUpTo(0){inclusive = true}
             }
+        else if (uiState is SplashScreenUiState.Home){
+            navController.navigate(AppRoute.PatientHomeScreen.route){
+                popUpTo(0){inclusive = true}
+            }
+        }
     }
 
     Column(

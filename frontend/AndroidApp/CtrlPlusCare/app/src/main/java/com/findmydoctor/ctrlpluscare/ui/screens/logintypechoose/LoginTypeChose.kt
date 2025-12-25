@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import com.findmydoctor.ctrlpluscare.R
 import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.CommonRoundCornersButton
+import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.TypeChooseButton
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
 import com.findmydoctor.ctrlpluscare.ui.theme.SuccessGreen
@@ -139,65 +140,6 @@ fun LoginTypeChose(
 
         }
 
-    }
-}
-
-@Composable
-fun TypeChooseButton(
-    heading : String,
-    subHeading : String,
-    isSelected : Boolean,
-    icon : Int,
-    color : Color,
-    onClick : () -> Unit
-){
-    Row(
-        modifier = Modifier.fillMaxWidth().clickable{
-            onClick()
-        }
-            .background(
-                color= if (isSelected) color.copy(alpha = 0.3f) else BackgroundColor,
-                shape = RoundedCornerShape(15.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = if (isSelected) color else Color.LightGray,
-                shape = RoundedCornerShape(15.dp)
-            )
-
-    ){
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 18.dp, top = 18.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = heading,
-                tint = if (isSelected) BackgroundColor else TextPrimary,
-                modifier = Modifier.padding(20.dp).background(
-                    color = if (!isSelected) color.copy(alpha = 0.3f) else color,
-                    shape = RoundedCornerShape(6.dp)
-                )
-                    .size(60.dp)
-            )
-            Column {
-                Text(
-                    text = heading,
-                    color = TextPrimary,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-                Text(
-                    text = subHeading,
-                    color = TextPrimary,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = W400,
-                        fontSize = 16.sp
-                    )
-                )
-            }
-        }
     }
 }
 

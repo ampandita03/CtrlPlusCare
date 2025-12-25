@@ -1,6 +1,6 @@
 package com.findmydoctor.ctrlpluscare.di
 
-import com.findmydoctor.ctrlpluscare.localstorage.LocalStorage
+import com.findmydoctor.ctrlpluscare.utils.LocalStorage
 import com.findmydoctor.ctrlpluscare.ui.TestViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp

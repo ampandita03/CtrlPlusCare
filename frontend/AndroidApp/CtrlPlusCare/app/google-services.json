@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "874071957148",
+    "project_id": "ctrlpluscare-de810",
+    "storage_bucket": "ctrlpluscare-de810.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874071957148:android:ec4f14c21153eefde0d759",
+        "android_client_info": {
+          "package_name": "com.findmydoctor.ctrlpluscare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN1Vpb8DU3qIl4yfeCovmteXMiT-8DYqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

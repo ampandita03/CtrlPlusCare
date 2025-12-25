@@ -1,4 +1,4 @@
-package com.findmydoctor.ctrlpluscare.localstorage
+package com.findmydoctor.ctrlpluscare.utils
 
 import android.content.Context
 import androidx.datastore.preferences.core.*
@@ -12,11 +12,21 @@ class LocalStorage(private val context: Context) {
 
     companion object {
         val TOKEN_KEY = stringPreferencesKey("token")
+        val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token")
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val USER_ROLE = stringPreferencesKey("user_role")
     }
 
-    // Save token
+    suspend fun saveFcmToken(token: String) {
+        context.dataStore.edit { prefs ->
+            prefs[FCM_TOKEN_KEY] = token
+        }}
+    suspend fun getFcmToken(): String? {
+        val prefs = context.dataStore.data.first()
+        return prefs[FCM_TOKEN_KEY]
+    }
+
+
     suspend fun saveToken(token: String) {
         context.dataStore.edit { prefs ->
             prefs[TOKEN_KEY] = token

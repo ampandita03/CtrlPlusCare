@@ -2,7 +2,7 @@ package com.findmydoctor.ctrlpluscare.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.findmydoctor.ctrlpluscare.localstorage.LocalStorage
+import com.findmydoctor.ctrlpluscare.utils.LocalStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
