@@ -3,7 +3,7 @@ const authService = require('./auth.service');
 exports.sendOtp = async (req, res) => {
     try {
         const { phone } = req.body;
-        if (!phone.match(/^[6-9]+$/)) {
+        if (!phone.match(/^[6-9]\d{9}$/)) {
             res.status(400).send({"error": "Enter valid phone number."});
         }
         await authService.sendOtp(phone);
