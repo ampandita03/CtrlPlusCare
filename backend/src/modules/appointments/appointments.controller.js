@@ -30,3 +30,25 @@ exports.getMyAppointments = async (req, res) => {
         res.status(400).json({ success: false, message: err.message });
     }
 };
+
+
+exports.cancel = async (req, res) => {
+    try {
+        const { appointmentId } = req.params;
+
+        const appointment = await service.cancelAppointment(
+            appointmentId,
+            req.user.userId
+        );
+
+        res.json({
+            success: true,
+            data: appointment,
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};

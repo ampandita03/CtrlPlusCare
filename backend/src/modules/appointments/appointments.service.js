@@ -52,3 +52,21 @@ exports.bookAppointment = async ({
         endTime,
     });
 };
+
+
+exports.cancelAppointment = async (appointmentId, userId) => {
+    const appointment = await Appointment.findOne({
+        _id: appointmentId,
+        patientId: userId,
+        status: 'BOOKED',
+    });
+
+    if (!appointment) {
+        throw new Error('Appointment not found or already cancelled');
+    }
+
+    appointment.status = 'CANCELLED';
+    await appointment.save();
+
+    return appointment;
+};
