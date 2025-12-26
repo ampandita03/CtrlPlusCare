@@ -16,10 +16,10 @@ exports.sendOtp = async (phone) => {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
-    let user = await User.findOne({ phone });
+    let user = await PatientProfile.findOne({ phone });
 
     if (!user) {
-        await User.create({phone, otp, otpExpiry});
+        await PatientProfile.create({phone, otp, otpExpiry});
     } else {
         user.otp = otp;
         user.otpExpiry = otpExpiry;
@@ -31,58 +31,46 @@ exports.sendOtp = async (phone) => {
 };
 
 
-exports.verifyOtp = async ({ phone, otp ,fcmToken }) => {
+exports.verifyOtp = async ({ phone, otp }) => {
     if (otp !== '123456') {
         throw new Error('Invalid OTP');
     }
+    const [patient, doctor] = await Promise.all([
+        PatientProfile.findOne({ phoneNumber: phone }),
+        Doctor.findOne({ phoneNumber: phone }),
+    ]);
 
-    let user = await User.findOne({ phone });
-
-    if (!user) {
-        user = await User.create({
-            phone,
-            role: 'PATIENT',
-            fcmToken
-        });
+    if (!patient && !doctor) {
+        throw new Error('User not found');
     }
 
-    let roleUpdated = false;
-
-    const patient = await PatientProfile.findOneAndUpdate(
-        { phoneNumber: phone, userId: { $exists: false } },
-        { userId: user._id }
-    );
-
+    let token;
+    let userId;
+    let role;
     if (patient) {
-        user.role = 'PATIENT';
-        roleUpdated = true;
+        userId = patient._id;
+        role = patient.role
+         token = jwt.sign(
+            { userId:  patient._id, role: patient.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN }
+        );
+    }else {
+        userId = patient._id;
+        role = patient.role
+        token = jwt.sign(
+            { userId:  doctor._id, role: doctor.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN })
     }
 
-    const doctor = await Doctor.findOneAndUpdate(
-        { phoneNumber: phone, userId: { $exists: false } },
-        { userId: user._id }
-    );
-
-    if (doctor) {
-        user.role = 'DOCTOR';
-        roleUpdated = true;
-    }
-
-    if (roleUpdated) {
-        await user.save();
-    }
-
-    const token = jwt.sign(
-        { userId: user._id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
 
     return {
         token,
         user: {
-            id: user._id,
-            role: user.role,
+            id: userId,
+            role: role,
         },
     };
 };
+

@@ -17,4 +17,11 @@ router.post(
     role.allowRoles('PATIENT'),
     controller.book
 );
+
+router.post(
+    '/book',
+    auth,
+    controller.bookEmergency
+);
+
 module.exports = router;

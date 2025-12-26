@@ -1,5 +1,6 @@
 const Appointment = require('./appointments.model');
 const AvailabilityService = require('../availability/availability.services');
+const Doctor = require('../doctors/doctors.model');
 
 exports.bookAppointment = async ({
                                      doctorId,
@@ -73,4 +74,49 @@ exports.cancelAppointment = async (appointmentId, userId) => {
     await appointment.save();
 
     return appointment;
+};
+
+
+
+exports.bookEmergencyAppointment = async ({
+                                              doctorId,
+                                              patientId,
+                                              date,
+                                              startTime,
+                                          }) => {
+    // 1️⃣ Only same-day allowed
+    const today = new Date().toISOString().split('T')[0];
+    if (date !== today) {
+        throw new Error('Emergency booking allowed only for today');
+    }
+
+    // 2️⃣ Get doctor
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) throw new Error('Doctor not found');
+
+    // 3️⃣ Get slots for today
+    const slots = await AvailabilityService.getSlotsForDate(doctorId, date);
+
+    const slot = slots.find(
+        (s) => s.startTime === startTime
+    );
+
+    if (!slot) {
+        throw new Error('Invalid slot');
+    }
+
+    // ⚠️ Override availability (emergency)
+    // even if slot.isAvailable === false
+
+    // 4️⃣ Create emergency appointment
+    return Appointment.create({
+        doctorId,
+        patientId,
+        date,
+        startTime,
+        endTime: slot.endTime,
+        isEmergency: true,
+        emergencyFee: doctor.emergencyFee,
+        paymentStatus: 'PENDING',
+    });
 };

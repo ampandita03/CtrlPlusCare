@@ -1,14 +1,19 @@
 const Doctor = require('./doctors.model');
-
+const PatientProfile = require('../patient/patient.model');
 exports.signupDoctor = async (data) => {
-    const existing = await Doctor.findOne({
-        phoneNumber: data.phoneNumber,
-    });
+    const [patientDB,doctorDB] = await Promise.all([
+        PatientProfile.findOne({
+            phoneNumber: data.phoneNumber,
+        }),
+        Doctor.findOne({
+            phoneNumber: data.phoneNumber,
+        })
+    ])
+    console.log(data.phoneNumber)
 
-    if (existing) {
-        throw new Error('Doctor already exists');
+    if (patientDB || doctorDB) {
+        throw new Error('Patient already exists');
     }
-
     const doctor = new Doctor(data);
     return await doctor.save();
 };

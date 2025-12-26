@@ -38,7 +38,16 @@ const appointmentSchema = new mongoose.Schema(
             type: String,
             enum: ['PENDING','SUCCESS', 'FAILED'], //pending for pay at counter
             default: 'PENDING',
-        }
+        },
+        isEmergency: {
+            type: Boolean,
+            default: false,
+        },
+
+        emergencyFee: {
+            type: Number,
+        },
+
     },
     { timestamps: true }
 );

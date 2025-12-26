@@ -2,14 +2,6 @@ const mongoose = require('mongoose');
 
 const doctorSchema = new mongoose.Schema(
     {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: false,
-            unique: true,
-            sparse: true,
-        },
-
         name: {
             type: String,
             required: true,
@@ -48,6 +40,8 @@ const doctorSchema = new mongoose.Schema(
         phoneNumber: {
             type: String,
             required: true,
+            unique: true,
+            index: true,
         },
         about:{
             type: String,
@@ -67,6 +61,12 @@ const doctorSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
 
+        }, fcmToken:{
+            type: String
+        },
+        role:{
+            type: String,
+            enum: ['PATIENT','DOCTOR'],
         }
 
     },

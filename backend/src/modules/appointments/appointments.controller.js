@@ -54,3 +54,26 @@ exports.cancel = async (req, res) => {
         });
     }
 };
+
+
+exports.bookEmergency = async (req, res) => {
+    try {
+        const appointment = await service.bookEmergencyAppointment({
+            doctorId: req.body.doctorId,
+            patientId: req.user.userId,
+            date: req.body.date,
+            startTime: req.body.startTime,
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Emergency appointment booked',
+            data: appointment,
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};

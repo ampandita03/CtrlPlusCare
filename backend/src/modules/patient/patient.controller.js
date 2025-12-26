@@ -3,10 +3,14 @@ const service = require('./patient.service');
 exports.signup = async (req, res) => {
     try {
         const profile = await service.signupPatient(req.body);
+        if (!profile) {
+            return res.status(400).send({
+                message: 'Error in registration',
+            })
+        }
         res.status(201).json({
             success: true,
             data: {
-                patientId: profile._id,
                 message: 'Signup successful',
             },
         });
