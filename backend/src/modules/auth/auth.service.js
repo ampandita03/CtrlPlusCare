@@ -35,42 +35,45 @@ exports.verifyOtp = async ({ phone, otp }) => {
     if (otp !== '123456') {
         throw new Error('Invalid OTP');
     }
+
+    const normalizedPhone = String(phone).trim();
+
     const [patient, doctor] = await Promise.all([
-        PatientProfile.findOne({ phoneNumber: phone }),
-        Doctor.findOne({ phoneNumber: phone }),
+        PatientProfile.findOne({ phoneNumber: normalizedPhone }),
+        Doctor.findOne({ phoneNumber: normalizedPhone }),
     ]);
 
     if (!patient && !doctor) {
         throw new Error('User not found');
     }
 
-    let token;
-    let userId;
+    let profile;
     let role;
+
     if (patient) {
-        userId = patient._id;
-        role = patient.role
-         token = jwt.sign(
-            { userId:  patient._id, role: patient.role },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
-    }else {
-        userId = patient._id;
-        role = patient.role
-        token = jwt.sign(
-            { userId:  doctor._id, role: doctor.role },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN })
+        profile = patient;
+        role = patient.role || 'PATIENT';
+    } else {
+        profile = doctor;
+        role = doctor.role || 'DOCTOR';
     }
 
+    const token = jwt.sign(
+        {
+            profileId: profile._id,
+            role,
+            phone: normalizedPhone,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 
     return {
         token,
         user: {
-            id: userId,
-            role: role,
+            id: profile._id,
+            role,
+            phone: normalizedPhone,
         },
     };
 };
-
