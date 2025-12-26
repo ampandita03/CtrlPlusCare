@@ -1,5 +1,6 @@
 package com.findmydoctor.ctrlpluscare.data.repository
 
+import android.util.Log
 import com.findmydoctor.ctrlpluscare.constant.Constants
 import com.findmydoctor.ctrlpluscare.data.dto.SignIn
 import com.findmydoctor.ctrlpluscare.data.dto.SignInOtp
@@ -45,6 +46,8 @@ class AuthImplementation(
                 }
                 setBody(signInOtp)
             }
+            Log.d("SignIn","$signInOtp")
+            Log.d("SignIn","${response.body<SignInResult>()}")
 
             if (!response.status.isSuccess()) {
                 val errorBody = response.bodyAsText()

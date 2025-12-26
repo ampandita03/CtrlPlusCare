@@ -10,6 +10,7 @@ sealed class AppRoute(val route: String) {
     object PatientHomeScreen : AppRoute("patient_home")
     object PatientNotificationScreen : AppRoute("patient_notification")
     object PatientProfileScreen : AppRoute("patient_profile")
+    object DoctorInfoScreen : AppRoute("doctor_info_screen")
 
     object DoctorHomeScreen : AppRoute("doctor_home")
     object DoctorNotificationScreen : AppRoute("doctor_notification")

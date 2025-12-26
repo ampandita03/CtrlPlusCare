@@ -3,7 +3,10 @@ package com.findmydoctor.ctrlpluscare.utils
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.findmydoctor.ctrlpluscare.data.dto.Doctor
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 // Extension property on Context
 private val Context.dataStore by preferencesDataStore(name = "app_prefs")
@@ -14,7 +17,22 @@ class LocalStorage(private val context: Context) {
         val TOKEN_KEY = stringPreferencesKey("token")
         val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token")
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+
+        val CURRENT_DOCTOR = stringPreferencesKey("current_doctor") // ✅
+
         val USER_ROLE = stringPreferencesKey("user_role")
+    }
+
+    suspend fun saveCurrentDoctor(doctor: Doctor) {
+        val json = Json.encodeToString(doctor)
+        context.dataStore.edit { prefs ->
+            prefs[CURRENT_DOCTOR] = json
+        }
+    }
+    suspend fun getCurrentDoctor(): Doctor? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_DOCTOR] ?: return null
+        return Json.decodeFromString<Doctor>(json)
     }
 
     suspend fun saveFcmToken(token: String) {

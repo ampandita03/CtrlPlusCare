@@ -1,19 +1,30 @@
 package com.findmydoctor.ctrlpluscare.data.dto
 
+import kotlinx.serialization.Serializable
+
+
+@Serializable
+data class DoctorResponse(
+    val success: Boolean,
+    val data: List<Doctor>
+)
+
+@Serializable
 data class Doctor(
-    val name : String,
-    val speciality : String,
-    val location : Location,
-    val hospital : String,
-    val fees : String,
-    val rating : Double,
-    val photo : String,
-    val experience : String,
-    val description : String
+    val clinicLocation: ClinicLocation,
+    val _id: String,
+    val userId: String,
+    val name: String,
+    val specialty: String,
+    val clinicAddress: String,
+    val consultationFee: Int,
+    val createdAt: String,
+    val updatedAt: String,
+    val __v: Int
 )
 
-data class Location(
-    val latitude : Double,
-    val longitude : Double,
+@Serializable
+data class ClinicLocation(
+    val type: String,
+    val coordinates: List<Double>
 )
-

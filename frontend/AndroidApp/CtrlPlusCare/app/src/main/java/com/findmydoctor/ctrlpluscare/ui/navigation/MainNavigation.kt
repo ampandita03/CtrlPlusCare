@@ -17,6 +17,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.findmydoctor.ctrlpluscare.ui.screens.login.LoginScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.logintypechoose.LoginTypeChose
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.doctorinfoscreen.DoctorInfoScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patienthomescreen.PatientHomeScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.PatientNotificationsScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientprofilescreen.PatientProfileScreen
@@ -90,7 +91,9 @@ fun MainNavigation(){
             composable(AppRoute.PatientProfileScreen.route) {
                 PatientProfileScreen(navController)
             }
-
+            composable (AppRoute.DoctorInfoScreen.route){
+                DoctorInfoScreen(navController)
+            }
 
         }
     }

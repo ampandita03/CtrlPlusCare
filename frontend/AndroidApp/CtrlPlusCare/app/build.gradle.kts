@@ -83,4 +83,6 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
     implementation("com.google.firebase:firebase-messaging")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }
