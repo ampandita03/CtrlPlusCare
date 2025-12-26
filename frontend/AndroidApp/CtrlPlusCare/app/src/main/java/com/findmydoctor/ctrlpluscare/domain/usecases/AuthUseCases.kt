@@ -1,5 +1,7 @@
 package com.findmydoctor.ctrlpluscare.domain.usecases
 
+import com.findmydoctor.ctrlpluscare.data.dto.DoctorSignUpRequest
+import com.findmydoctor.ctrlpluscare.data.dto.PatientProfileRequest
 import com.findmydoctor.ctrlpluscare.data.dto.SignIn
 import com.findmydoctor.ctrlpluscare.data.dto.SignInOtp
 import com.findmydoctor.ctrlpluscare.data.dto.SignInResult
@@ -17,3 +19,16 @@ class SignInOtpUseCase(private val authInterface: AuthInterface){
     }
 }
 
+class PatientSignUpUseCase(private val authInterface: AuthInterface){
+    suspend operator fun invoke(patientSignUp: PatientProfileRequest): Result<Unit> {
+
+       return authInterface.patientSignUp(patientSignUp)
+    }
+}
+
+class DoctorSignUpUseCase(private val authInterface: AuthInterface){
+    suspend operator fun invoke(doctorSignUp: DoctorSignUpRequest): Result<Unit> {
+
+        return authInterface.doctorSignUp(doctorSignUp)
+    }
+}

@@ -30,7 +30,7 @@ class LoginViewModel(
                 _uiState.value = LoginUiStates.OtpSent
             }
                 .onFailure {
-                    _uiState.value = LoginUiStates.Error("${it.message}")
+
                 }
         }
     }
@@ -47,6 +47,7 @@ class LoginViewModel(
 
             result.onSuccess {
                 _uiState.value = LoginUiStates.LoginSuccess(it)
+                localStorage.saveUserRole(role = it.data.user.role)
 
             }
                 .onFailure {

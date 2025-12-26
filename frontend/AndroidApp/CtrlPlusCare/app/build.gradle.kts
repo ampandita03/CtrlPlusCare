@@ -85,4 +85,8 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
 
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    implementation ("com.google.firebase:firebase-storage")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
 }

@@ -11,6 +11,6 @@ data class TimeSlotsResponse(
 @Serializable
 data class TimeSlot(
     val startTime: String,
-    val isBooked : Boolean,
+    val isAvailable : Boolean,
     val endTime: String
 )

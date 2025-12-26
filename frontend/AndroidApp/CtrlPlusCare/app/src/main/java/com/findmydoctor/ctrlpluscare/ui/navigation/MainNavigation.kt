@@ -1,34 +1,44 @@
 package com.findmydoctor.ctrlpluscare.ui.navigation
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorhomescreen.DoctorHomeScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorprofile.DoctorProfileScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorsignup.DoctorSignUpScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.login.LoginScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.logintypechoose.LoginTypeChose
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingconfirmed.BookingConfirmScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingscreen.BookingScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.doctorinfoscreen.DoctorInfoScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patienthomescreen.PatientHomeScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.PatientNotificationsScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientprofilescreen.PatientProfileScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientsignup.PatientSignUpScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.splashscreen.SplashScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.welcomescreen.WelcomeScreen
+import org.koin.compose.viewmodel.koinViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainNavigation(){
-    val userRole by remember { mutableStateOf(UserRole.PATIENT) }
-    LaunchedEffect(Unit) { }
+fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
+
+    val userRole by viewModel.role.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getRole()
+    }
     val navController = rememberNavController()
 
     val currentRoute =
@@ -45,8 +55,9 @@ fun MainNavigation(){
     )
 
     val bottomBarItems = when (userRole) {
-        UserRole.PATIENT -> patientBottomBarItems
-        UserRole.DOCTOR -> doctorBottomBarItems
+         "PATIENT" -> patientBottomBarItems
+        "DOCTOR" -> doctorBottomBarItems
+        else -> patientBottomBarItems
     }
 
     Scaffold(
@@ -93,6 +104,25 @@ fun MainNavigation(){
             }
             composable (AppRoute.DoctorInfoScreen.route){
                 DoctorInfoScreen(navController)
+            }
+            composable(AppRoute.BookingScreen.route) {
+                BookingScreen(navController)
+            }
+            composable (AppRoute.PatientSignUpScreen.route){
+                PatientSignUpScreen(navController)
+            }
+            composable (AppRoute.BookingConfirmScreen.route){
+                BookingConfirmScreen(navController)
+            }
+
+            composable(AppRoute.DoctorHomeScreen.route) {
+                DoctorHomeScreen(navController)
+            }
+            composable (AppRoute.DoctorProfileScreen.route){
+                DoctorProfileScreen(navController)
+            }
+            composable (AppRoute.DoctorSignUpScreen.route){
+                DoctorSignUpScreen(navController)
             }
 
         }

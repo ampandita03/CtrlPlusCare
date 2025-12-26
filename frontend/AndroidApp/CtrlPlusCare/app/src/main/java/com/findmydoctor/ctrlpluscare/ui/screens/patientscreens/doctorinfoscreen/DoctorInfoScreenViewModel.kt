@@ -2,6 +2,8 @@ package com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.doctorinfoscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.findmydoctor.ctrlpluscare.data.dto.BookAppointmentRequest
+import com.findmydoctor.ctrlpluscare.data.dto.TimeSlot
 import com.findmydoctor.ctrlpluscare.domain.usecases.GetAvailableSlotsUseCase
 import com.findmydoctor.ctrlpluscare.utils.LocalStorage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +42,17 @@ class DoctorInfoScreenViewModel(
             response.onFailure {
                 _uiState.value = DoctorInfoScreenUiStates.Error(it.message ?: "" )
             }
+        }
+    }
+
+    fun saveBookingData(selectedDate: String, startTime : String, endTime : String){
+        viewModelScope.launch {
+            val booking = BookAppointmentRequest(
+                doctorId = localStorage.getCurrentDoctor()?.userId ?: "",
+                date = selectedDate,
+                startTime = startTime,
+                endTime = endTime)
+            localStorage.saveCurrentBooking(booking)
         }
     }
 }

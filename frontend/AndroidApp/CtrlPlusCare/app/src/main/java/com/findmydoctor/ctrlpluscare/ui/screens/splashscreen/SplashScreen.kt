@@ -58,8 +58,13 @@ fun SplashScreen(navController: NavHostController,viewModel: SplashScreenViewMod
             navController.navigate(AppRoute.Welcome.route){
                 popUpTo(0){inclusive = true}
             }
-        else if (uiState is SplashScreenUiState.Home){
+        else if (uiState is SplashScreenUiState.PatientHome){
             navController.navigate(AppRoute.PatientHomeScreen.route){
+                popUpTo(0){inclusive = true}
+            }
+        }
+        else if (uiState is SplashScreenUiState.DoctorHome){
+            navController.navigate(AppRoute.DoctorHomeScreen.route){
                 popUpTo(0){inclusive = true}
             }
         }

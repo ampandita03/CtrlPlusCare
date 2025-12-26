@@ -2,6 +2,11 @@ package com.findmydoctor.ctrlpluscare.data.dto
 
 import kotlinx.serialization.Serializable
 
+@Serializable
+data class Location(
+    val latitude : Double,
+    val longitude : Double
+)
 
 @Serializable
 data class SignIn(
@@ -22,10 +27,16 @@ data class SignInResult(
 
 @Serializable
 data class SignInData(
-    val user: User,
+    val user: UserSignIn,
     val token: String
 )
 
+@Serializable
+data class UserSignIn(
+    val id : String,
+    val role : String,
+    val phone: String
+)
 @Serializable
 data class User(
     val _id: String,

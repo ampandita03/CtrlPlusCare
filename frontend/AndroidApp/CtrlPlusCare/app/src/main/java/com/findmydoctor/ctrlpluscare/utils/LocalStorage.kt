@@ -3,10 +3,14 @@ package com.findmydoctor.ctrlpluscare.utils
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.findmydoctor.ctrlpluscare.data.dto.BookAppointmentRequest
 import com.findmydoctor.ctrlpluscare.data.dto.Doctor
+import com.findmydoctor.ctrlpluscare.data.dto.Location
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+
+
 
 // Extension property on Context
 private val Context.dataStore by preferencesDataStore(name = "app_prefs")
@@ -20,7 +24,24 @@ class LocalStorage(private val context: Context) {
 
         val CURRENT_DOCTOR = stringPreferencesKey("current_doctor") // ✅
 
+        val CURRENT_BOOKING = stringPreferencesKey("current_booking")
+
+        val CURRENT_LOCATION = stringPreferencesKey("current_location")
+
         val USER_ROLE = stringPreferencesKey("user_role")
+    }
+
+    suspend fun saveCurrentLocation(location: Location){
+        val json = Json.encodeToString(location)
+        context.dataStore.edit {
+            it[CURRENT_LOCATION] = json
+        }
+    }
+
+    suspend fun getCurrentLocation(): Location? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_LOCATION] ?: return null
+        return Json.decodeFromString<Location>(json)
     }
 
     suspend fun saveCurrentDoctor(doctor: Doctor) {
@@ -29,11 +50,27 @@ class LocalStorage(private val context: Context) {
             prefs[CURRENT_DOCTOR] = json
         }
     }
+
     suspend fun getCurrentDoctor(): Doctor? {
         val prefs = context.dataStore.data.first()
         val json = prefs[CURRENT_DOCTOR] ?: return null
         return Json.decodeFromString<Doctor>(json)
     }
+
+    suspend fun saveCurrentBooking(booking: BookAppointmentRequest){
+        val json = Json.encodeToString(booking)
+        context.dataStore.edit { preferences ->
+            preferences[CURRENT_BOOKING] = json
+        }
+    }
+
+    suspend fun getCurrentBooking(): BookAppointmentRequest? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_BOOKING] ?: return null
+        return Json.decodeFromString<BookAppointmentRequest>(json)
+    }
+
+
 
     suspend fun saveFcmToken(token: String) {
         context.dataStore.edit { prefs ->
@@ -57,6 +94,17 @@ class LocalStorage(private val context: Context) {
         return prefs[TOKEN_KEY]
     }
 
+
+    suspend fun  saveUserRole(role:String){
+        context.dataStore.edit {
+            it[USER_ROLE] = role
+        }
+    }
+
+    suspend fun getUserRole(): String?{
+        val prefs = context.dataStore.data.first()
+        return prefs[USER_ROLE]
+    }
     // Save login state
     suspend fun setLoggedIn(isLoggedIn: Boolean) {
         context.dataStore.edit {

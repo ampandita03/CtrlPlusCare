@@ -82,11 +82,18 @@ fun LoginScreen(navController: NavController,viewModel: LoginViewModel = koinVie
     }
     LaunchedEffect(uiState is LoginUiStates.LoginSuccess){
         if (uiState is LoginUiStates.LoginSuccess){
+            if ((uiState as LoginUiStates.LoginSuccess).data.data.user.role == "PATIENT")
             navController.navigate(AppRoute.PatientHomeScreen.route){
                 popUpTo(0){
                     inclusive = true
                 }
             }
+            else if ((uiState as LoginUiStates.LoginSuccess).data.data.user.role == "DOCTOR")
+                navController.navigate(AppRoute.DoctorHomeScreen.route){
+                    popUpTo(0){
+                        inclusive = true
+                    }
+                }
         }
 
     }

@@ -54,9 +54,9 @@ fun CommonAuthTextField(
         OutlinedTextField(
             value = value,
             onValueChange = { newValue ->
-                if (newValue.length <= 10 && newValue.all { it.isDigit() }) {
+
                     onValueChange(newValue)
-                }
+
             },
             placeholder = {
                 Text(
@@ -71,7 +71,7 @@ fun CommonAuthTextField(
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = TextPrimary
+                    tint = TextPrimary.copy(0.5f)
                 )
             },
             trailingIcon = {
@@ -88,7 +88,7 @@ fun CommonAuthTextField(
             },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = TextPrimary.copy(0.5f),
-                unfocusedBorderColor = TextSecondary,
+                unfocusedBorderColor = TextSecondary.copy(0.3f),
                 focusedTextColor = TextPrimary,
                 unfocusedTextColor = TextPrimary,
                 cursorColor = TextPrimary.copy(0.7f)

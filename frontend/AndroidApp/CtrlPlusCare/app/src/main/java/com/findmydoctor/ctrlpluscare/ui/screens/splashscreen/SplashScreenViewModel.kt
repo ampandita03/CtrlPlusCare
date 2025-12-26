@@ -1,5 +1,6 @@
 package com.findmydoctor.ctrlpluscare.ui.screens.splashscreen
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import com.findmydoctor.ctrlpluscare.utils.GenerateFCMToken
 import com.findmydoctor.ctrlpluscare.utils.LocalStorage
@@ -17,10 +18,14 @@ class SplashScreenViewModel(
     suspend fun generateFcmToken(){
         generateFCMToken.generateAndStore()
     }
+    @SuppressLint("SuspiciousIndentation")
     suspend fun navigate(){
         val token = localStorage.getToken()
-        if (token!=null)
-            _uiState.value = SplashScreenUiState.Home
+        val role = localStorage.getUserRole()
+        if (token!=null&&role =="DOCTOR")
+            _uiState.value = SplashScreenUiState.DoctorHome
+        else if(token!=null&&role =="PATIENT")
+            _uiState.value = SplashScreenUiState.PatientHome
         else
         _uiState.value = SplashScreenUiState.Welcome
     }

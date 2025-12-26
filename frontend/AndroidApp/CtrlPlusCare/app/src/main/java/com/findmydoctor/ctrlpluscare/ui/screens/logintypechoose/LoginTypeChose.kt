@@ -107,7 +107,13 @@ fun LoginTypeChose(
                 text = selectedText,
                 tint = selectedColor
             ) {
+                if (loginType == LoginType.PATIENT){
+                    navController.navigate(AppRoute.PatientSignUpScreen.route)
+                }
+                else if (loginType== LoginType.DOCTOR){
+                    navController.navigate(AppRoute.DoctorSignUpScreen.route)
 
+                }
             }
             Spacer(Modifier.height(15.dp))
             Row(

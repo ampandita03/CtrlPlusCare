@@ -1,5 +1,6 @@
 package com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patienthomescreen
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.W400
 import androidx.compose.ui.text.font.FontWeight.Companion.W500
@@ -60,12 +62,15 @@ import coil.compose.AsyncImage
 import com.findmydoctor.ctrlpluscare.R
 import com.findmydoctor.ctrlpluscare.data.dto.Doctor
 import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
+import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.DoctorCard
+import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.RequestLocationPermissionOnce
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.calculateDistance
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.EmergencyRed
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
 import com.findmydoctor.ctrlpluscare.ui.theme.TextDisabled
 import com.findmydoctor.ctrlpluscare.ui.theme.TextPrimary
+import com.findmydoctor.ctrlpluscare.utils.fetchUserLocation
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -74,10 +79,30 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.getNearbyDoctors(77.1025,28.7041)
+        viewModel.getNearbyDoctors()
+    }
+    var locationRequested by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!locationRequested) {
+            locationRequested = true
+        }
     }
 
+    if (locationRequested) {
+        RequestLocationPermissionOnce(
+            onGranted = {
+                fetchUserLocation(context) { lat, lng ->
+                    viewModel.saveUserLocation(lat, lng)
+                }
+            },
+            onDenied = {
+                Log.e("Location", "User denied location permission")
+            }
+        )
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {paddingValues ->
@@ -237,106 +262,6 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
     }
 }
 
-@Composable
-fun DoctorCard(doctor: Doctor,onClick:()-> Unit,border: Boolean = true,directions: Boolean = false,onDirectionClick:()-> Unit = {},isClickable : Boolean = true ) {
-    val distance = calculateDistance(
-        point1 = doctor.clinicLocation.coordinates,
-        point2 = listOf(77.1027,28.70)
-    )
-    Card(
-        modifier = Modifier.fillMaxWidth()
-            .padding(bottom = if (isClickable) 15.dp else 0.dp)
-            .clickable(
-                enabled = isClickable,
-            ){
-                onClick()
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        border = BorderStroke(
-            width = if (border)1.dp else 0.dp,
-            color = if (border) TextDisabled.copy(alpha = 0.5f) else Color.Transparent
-        )
-
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            AsyncImage(
-                model = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbgk0yfCOe55931lf6q0osfhGRU-fnH8Im1g&s",
-                contentDescription = "",
-                modifier = Modifier.height(100.dp)
-            )
-            Column(modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(
-                    text = doctor.name,
-                    color = TextPrimary,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = W400,
-                        fontSize = 19.5.sp
-                    )
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "${doctor.specialty} | ",
-                        color = TextDisabled,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = W400,
-                            fontSize = 15.sp
-                        )
-                    )
-                    Text(
-                        text = "Rs ${doctor.consultationFee}",
-                        color = TextPrimary,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = W600,
-                            fontSize = 15.sp
-                        )
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = "",
-                        tint = TextDisabled
-                    )
-                    Text(
-                        text = "${distance.toInt()} metres away ",
-                        color = TextPrimary,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = W400
-                            ,
-                            fontSize = 15.sp
-                        )
-                    )
-                }
-                if(directions){
-                    Text(
-                        text = "Get Direction (Maps)",
-                        color = PrimaryBlue,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = W400,
-                            fontSize = 15.sp
-                        ),
-                        modifier = Modifier.clickable{
-                            onDirectionClick()
-                        }
-                    )
-                }
-
-            }
-        }
-
-
-    }
-}
 
 @Composable
 fun GeneralRoundCornerButtons(

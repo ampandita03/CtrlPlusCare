@@ -8,7 +8,7 @@ import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun PatientProfileScreen(navController: NavController,viewModel: ProfileScreenViewModel = koinViewModel()){
+fun PatientProfileScreen(navController: NavController,viewModel: PatientProfileScreenViewModel = koinViewModel()){
     Button(
         onClick = {
             viewModel.logOut()
