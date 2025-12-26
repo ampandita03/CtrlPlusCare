@@ -1,8 +1,32 @@
 const service = require('./patient.service');
 
-exports.saveProfile = async (req, res) => {
+exports.signup = async (req, res) => {
     try {
-        const profile = await service.upsertProfile(req.user.userId, req.body);
+        const profile = await service.signupPatient(req.body);
+        res.status(201).json({
+            success: true,
+            data: {
+                patientId: profile._id,
+                message: 'Signup successful',
+            },
+        });
+
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        console.log(req.user.userId);
+        console.log(req.body);
+        const profile = await service.updateProfile(
+            req.user.userId,
+            req.body
+        );
 
         res.json({
             success: true,
@@ -16,7 +40,7 @@ exports.saveProfile = async (req, res) => {
     }
 };
 
-exports.getMyProfile = async (req, res) => {
+exports.getProfile = async (req, res) => {
     try {
         const profile = await service.getProfile(req.user.userId);
 

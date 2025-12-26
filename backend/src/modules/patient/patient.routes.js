@@ -2,21 +2,25 @@ const express = require('express');
 const router = express.Router();
 const controller = require('./patient.controller');
 const auth = require('../../middlewares/auth.middleware');
-const {allowRoles} = require("../../middlewares/role.middleware");
+const role = require('../../middlewares/role.middleware');
 
 router.post(
+    '/signup',
+    controller.signup
+);
+
+router.put(
     '/profile',
     auth,
-    allowRoles('PATIENT'),
-    controller.saveProfile
+    role.allowRoles('PATIENT'),
+    controller.updateProfile
 );
 
 router.get(
     '/profile',
     auth,
-    allowRoles('PATIENT'),
-    controller.getMyProfile
+    role.allowRoles('PATIENT'),
+    controller.getProfile
 );
-
 
 module.exports = router;

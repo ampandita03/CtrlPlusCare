@@ -5,8 +5,9 @@ const patientProfileSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
+            required: false,
             unique: true,
+            sparse: true,
         },
 
         name: {
@@ -33,6 +34,30 @@ const patientProfileSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        height : {
+            type: String,
+        },
+        weight : {
+            type: String,
+        },
+        phoneNumber: {
+            type: String,
+            required: true,
+        },
+        location: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: true,
+            },
+            coordinates: {
+                type: [Number], // [longitude, latitude]
+                required: true,
+            },
+        },
+        imageLink:{
+            type: String,
+        }
     },
     { timestamps: true }
 );

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('./auth.model');
-
+const PatientProfile = require('../patient/patient.model');
+const Doctor = require('../doctors/doctors.model');
 const generateOTP = () => '123456';
 
 const generateToken = (user) => {
@@ -29,20 +30,59 @@ exports.sendOtp = async (phone) => {
     return true;
 };
 
-exports.verifyOtp = async ({ phone, otp, fcmToken }) => {
-    const user = await User.findOne({ phone });
 
-    if (!user) throw new Error('User not found');
-    if (user.otp !== otp) throw new Error('Invalid OTP');
-    if (user.otpExpiry < new Date()) throw new Error('OTP expired');
+exports.verifyOtp = async ({ phone, otp ,fcmToken }) => {
+    if (otp !== '123456') {
+        throw new Error('Invalid OTP');
+    }
 
-    user.otp = null;
-    user.otpExpiry = null;
-    if (fcmToken) user.fcmToken = fcmToken;
+    let user = await User.findOne({ phone });
 
-    await user.save();
+    if (!user) {
+        user = await User.create({
+            phone,
+            role: 'PATIENT',
+            fcmToken
+        });
+    }
 
-    const token = generateToken(user);
+    let roleUpdated = false;
 
-    return { user, token };
+    const patient = await PatientProfile.findOneAndUpdate(
+        { phoneNumber: phone, userId: { $exists: false } },
+        { userId: user._id }
+    );
+
+    if (patient) {
+        user.role = 'PATIENT';
+        roleUpdated = true;
+    }
+
+    const doctor = await Doctor.findOneAndUpdate(
+        { phoneNumber: phone, userId: { $exists: false } },
+        { userId: user._id }
+    );
+
+    if (doctor) {
+        user.role = 'DOCTOR';
+        roleUpdated = true;
+    }
+
+    if (roleUpdated) {
+        await user.save();
+    }
+
+    const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    return {
+        token,
+        user: {
+            id: user._id,
+            role: user.role,
+        },
+    };
 };

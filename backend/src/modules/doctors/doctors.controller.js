@@ -1,14 +1,17 @@
 const doctorService = require('./doctors.service');
-
 exports.createDoctor = async (req, res) => {
     try {
-        const doctor = await doctorService.createDoctorProfile({
+        const doctor = await doctorService.signupDoctor({
             ...req.body,
-            userId: req.user.userId,
         });
 
-        res.status(201).json({ success: true, data: doctor });
-    } catch (err) {
+        res.status(201).json({
+            success: true,
+            data: {
+                patientId: doctor._id,
+                message: 'Signup successful',
+            },
+        });    } catch (err) {
         res.status(400).json({ success: false, message: err.message });
     }
 };
@@ -37,3 +40,23 @@ exports.getNearbyDoctors = async (req, res) => {
         res.status(400).json({ success: false, message: err.message });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const doctor = await doctorService.updateDoctorProfile(
+            req.user.userId,
+            req.body
+        );
+
+        res.json({
+            success: true,
+            data: doctor,
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+

@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('./doctors.controller');
-const auth = require('../../middlewares/auth.middleware');
-
-router.post('/', auth, controller.createDoctor);
+const {allowRoles} = require("../../middlewares/role.middleware");
+const auth = require("../../middlewares/auth.middleware");
+router.post('/', controller.createDoctor);
 router.get('/', controller.getDoctorsBySpecialty);
 router.get('/nearby', controller.getNearbyDoctors);
+router.put(
+    '/profile',
+    auth,
+    allowRoles('DOCTOR'),
+    controller.updateProfile
+);
 
 module.exports = router;
