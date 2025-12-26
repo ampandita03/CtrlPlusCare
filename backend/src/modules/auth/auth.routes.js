@@ -6,7 +6,7 @@ const controller = require('./auth.controller');
  * @swagger
  * tags:
  *   name: Auth
- *   description: Authentication APIs
+ *   description: Authentication APIs (OTP based login)
  */
 
 /**
@@ -41,14 +41,15 @@ const controller = require('./auth.controller');
  *                 message:
  *                   type: string
  *                   example: OTP sent
+ *       400:
+ *         description: Invalid phone number
  */
-router.post('/send-otp', controller.sendOtp);
 
 /**
  * @swagger
  * /api/auth/verify-otp:
  *   post:
- *     summary: Verify OTP and login
+ *     summary: Verify OTP and login user
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -77,21 +78,30 @@ router.post('/send-otp', controller.sendOtp);
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 token:
- *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *                 user:
+ *                 data:
  *                   type: object
  *                   properties:
- *                     id:
+ *                     token:
  *                       type: string
- *                     role:
- *                       type: string
- *                       example: PATIENT
- *                     phone:
- *                       type: string
- *                       example: "9876543210"
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: 65b7f1b8c2d4a81234567890
+ *                         role:
+ *                           type: string
+ *                           enum: [PATIENT, DOCTOR]
+ *                           example: PATIENT
+ *                         phone:
+ *                           type: string
+ *                           example: "9876543210"
+ *       400:
+ *         description: Invalid OTP or user not found
  */
+
+router.post('/send-otp', controller.sendOtp);
 router.post('/verify-otp', controller.verifyOtp);
 
 module.exports = router;
