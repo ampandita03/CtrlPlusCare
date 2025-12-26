@@ -34,6 +34,10 @@ const doctorSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        emergencyFee: {
+            type: Number,
+            required: true,
+        },
         email:{
             type: String,
         },

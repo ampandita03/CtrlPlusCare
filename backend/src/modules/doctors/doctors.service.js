@@ -21,6 +21,10 @@ exports.getDoctorsBySpecialty = async (specialty) => {
     return Doctor.find({specialty});
 };
 
+exports.getAllDoctors = async () => {
+    return Doctor.find();
+};
+
 
 exports.updateDoctorProfile = async (userId, data) => {
     const doctor = await Doctor.findOneAndUpdate(
@@ -50,3 +54,8 @@ exports.getNearbyDoctors = async ({ latitude, longitude, maxDistance = 5000 }) =
         },
     });
 };
+
+exports.getDoctorProfile = async (phone) => {
+    return Doctor.findOne({phoneNumber: phone});
+};
+

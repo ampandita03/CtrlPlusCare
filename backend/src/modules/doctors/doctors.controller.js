@@ -26,6 +26,15 @@ exports.getDoctorsBySpecialty = async (req, res) => {
     }
 };
 
+exports.getAllDoctors = async (req, res) => {
+    try {
+        const doctors = await doctorService.getAllDoctors();
+        res.json({ success: true, data: doctors });
+    } catch (err) {
+        res.status(400).json({ success: false, message: err.message });
+    }
+};
+
 exports.getNearbyDoctors = async (req, res) => {
     try {
         const { lat, lng } = req.query;
@@ -44,7 +53,7 @@ exports.getNearbyDoctors = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const doctor = await doctorService.updateDoctorProfile(
-            req.user.userId,
+            req.user.profileId,
             req.body
         );
 
@@ -60,3 +69,19 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+
+exports.getProfile = async (req, res) => {
+    try {
+        const profile = await doctorService.getDoctorProfile(req.user.phone);
+        console.log(req.user)
+        res.json({
+            success: true,
+            data: profile,
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};

@@ -28,7 +28,7 @@ exports.updateProfile = async (req, res) => {
         console.log(req.user.userId);
         console.log(req.body);
         const profile = await service.updateProfile(
-            req.user.userId,
+            req.user.profileId,
             req.body
         );
 
@@ -46,8 +46,8 @@ exports.updateProfile = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
     try {
-        const profile = await service.getProfile(req.user.userId);
-
+        const profile = await service.getProfile(req.user.phone);
+        console.log(req.user)
         res.json({
             success: true,
             data: profile,

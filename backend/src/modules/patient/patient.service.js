@@ -21,7 +21,7 @@ exports.signupPatient = async (data) => {
 
 exports.updateProfile = async (userId, data) => {
     const profile = await PatientProfile.findOneAndUpdate(
-        { userId },
+        { _id : userId },
         data,
         { new: true }
     );
@@ -33,6 +33,6 @@ exports.updateProfile = async (userId, data) => {
     return profile;
 };
 
-exports.getProfile = async (userId) => {
-    return await PatientProfile.findOne({ userId });
+exports.getProfile = async (phone) => {
+    return PatientProfile.findOne({phoneNumber: phone});
 };

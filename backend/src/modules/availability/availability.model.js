@@ -6,31 +6,35 @@ const availabilitySchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Doctor',
             required: true,
-            unique: true,
+            index: true,
         },
 
-        slots: [
-            {
-                dayOfWeek: {
-                    type: Number, // 0 = Sunday, 6 = Saturday
-                    required: true,
-                },
-                startTime: {
-                    type: String, // "09:00"
-                    required: true,
-                },
-                endTime: {
-                    type: String, // "17:00"
-                    required: true,
-                },
-                slotDuration: {
-                    type: Number, // minutes (e.g. 30)
-                    required: true,
-                },
-            },
-        ],
+        date: {
+            type: String, // YYYY-MM-DD
+            required: true,
+        },
+
+        startTime: {
+            type: String, // "09:00"
+            required: true,
+        },
+
+        endTime: {
+            type: String, // "17:00"
+            required: true,
+        },
+
+        slotDuration: {
+            type: Number, // minutes
+            required: true,
+        },
     },
     { timestamps: true }
+);
+
+availabilitySchema.index(
+    { doctorId: 1, date: 1 },
+    { unique: true }
 );
 
 module.exports = mongoose.model('Availability', availabilitySchema);

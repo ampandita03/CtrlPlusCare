@@ -1,4 +1,5 @@
 const express = require('express');
+const {testNotification} = require("./modules/testnotifiController");
 const router = express.Router();
 
 router.use('/auth', require('./modules/auth/auth.routes'));
@@ -8,5 +9,7 @@ router.use('/patient', require('./modules/patient/patient.routes'));
 router.use('/appointments', require('./modules/appointments/appointments.routes'));
 router.use('/testNotification', require('./modules/testapi'));
 router.use('/specialties', require('./modules/specialties/specialties.routes'));
+router.post('/test-fcm', testNotification);
+router.use('/notifications', require('./modules/notifications/notification.routes'));
 
 module.exports = router;

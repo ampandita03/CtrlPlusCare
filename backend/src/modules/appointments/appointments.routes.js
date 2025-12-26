@@ -5,6 +5,8 @@ const auth = require('../../middlewares/auth.middleware');
 const role = require("../../middlewares/role.middleware");
 
 router.get('/my', auth, controller.getMyAppointments);
+router.get('/doc', auth, controller.getDocAppointments);
+
 router.patch(
     '/:appointmentId/cancel',
     auth,

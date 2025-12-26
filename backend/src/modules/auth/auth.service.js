@@ -1,34 +1,34 @@
 const jwt = require('jsonwebtoken');
-const User = require('./auth.model');
 const PatientProfile = require('../patient/patient.model');
 const Doctor = require('../doctors/doctors.model');
 const generateOTP = () => '123456';
-
-const generateToken = (user) => {
-    return jwt.sign(
-        { userId: user._id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-};
 
 exports.sendOtp = async (phone) => {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
-    let user = await PatientProfile.findOne({ phone });
+    const normalizedPhone = String(phone).trim();
+
+    let user = await PatientProfile.findOne({
+        phoneNumber: normalizedPhone,
+    });
 
     if (!user) {
-        await PatientProfile.create({phone, otp, otpExpiry});
+        await PatientProfile.create({
+            phoneNumber: normalizedPhone,
+            otp,
+            otpExpiry,
+        });
     } else {
         user.otp = otp;
         user.otpExpiry = otpExpiry;
         await user.save();
     }
 
-    console.log(`OTP for ${phone} is ${otp}`);
+    console.log(`OTP for ${normalizedPhone} is ${otp}`);
     return true;
 };
+
 
 
 exports.verifyOtp = async ({ phone, otp }) => {

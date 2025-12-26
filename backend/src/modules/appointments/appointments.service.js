@@ -2,6 +2,30 @@ const Appointment = require('./appointments.model');
 const AvailabilityService = require('../availability/availability.services');
 const Doctor = require('../doctors/doctors.model');
 
+
+const getISTDateString = () => {
+    const now = new Date();
+
+    // Convert to IST (UTC + 5:30)
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(now.getTime() + istOffset);
+
+    return istDate.toISOString().split('T')[0]; // YYYY-MM-DD
+};
+
+const getISTTimeInMinutes = () => {
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const ist = new Date(now.getTime() + istOffset);
+
+    return ist.getHours() * 60 + ist.getMinutes();
+};
+
+const toMinutes = (time) => {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+};
+
 exports.bookAppointment = async ({
                                      doctorId,
                                      patientId,
@@ -22,6 +46,8 @@ exports.bookAppointment = async ({
     if (!isValidSlot) {
         throw new Error('Selected slot is not available');
     }
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) throw new Error('Doctor not found');
 
     // 2️⃣ Doctor conflict
     const doctorConflict = await Appointment.findOne({
@@ -54,7 +80,8 @@ exports.bookAppointment = async ({
         date,
         startTime,
         endTime,
-        paymentStatus
+        paymentStatus,
+        fees : doctor.consultationFee
     });
 };
 
@@ -82,10 +109,10 @@ exports.bookEmergencyAppointment = async ({
                                               doctorId,
                                               patientId,
                                               date,
-                                              startTime,
                                           }) => {
-    // 1️⃣ Only same-day allowed
-    const today = new Date().toISOString().split('T')[0];
+
+    // 1️⃣ Only same-day booking (IST)
+    const today = getISTDateString();
     if (date !== today) {
         throw new Error('Emergency booking allowed only for today');
     }
@@ -94,29 +121,33 @@ exports.bookEmergencyAppointment = async ({
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 
-    // 3️⃣ Get slots for today
+    // 3️⃣ Get today's slots
     const slots = await AvailabilityService.getSlotsForDate(doctorId, date);
-
-    const slot = slots.find(
-        (s) => s.startTime === startTime
-    );
-
-    if (!slot) {
-        throw new Error('Invalid slot');
+    if (!slots.length) {
+        throw new Error('No slots available today');
     }
 
-    // ⚠️ Override availability (emergency)
-    // even if slot.isAvailable === false
+    const nowMinutes = getISTTimeInMinutes();
 
-    // 4️⃣ Create emergency appointment
+    // 4️⃣ Pick nearest future available slot
+    const nearestSlot = slots.find((slot) => {
+        const slotStartMinutes = toMinutes(slot.startTime);
+        return slot.isAvailable && slotStartMinutes >= nowMinutes;
+    });
+
+    if (!nearestSlot) {
+        throw new Error('No emergency slot available for today');
+    }
+
+    // 5️⃣ Create emergency appointment
     return Appointment.create({
         doctorId,
         patientId,
         date,
-        startTime,
-        endTime: slot.endTime,
+        startTime: nearestSlot.startTime,
+        endTime: nearestSlot.endTime,
         isEmergency: true,
-        emergencyFee: doctor.emergencyFee,
+        fees: doctor.emergencyFee,
         paymentStatus: 'PENDING',
     });
 };

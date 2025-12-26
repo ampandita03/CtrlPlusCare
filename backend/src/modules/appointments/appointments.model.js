@@ -44,8 +44,12 @@ const appointmentSchema = new mongoose.Schema(
             default: false,
         },
 
-        emergencyFee: {
+        fees: {
             type: Number,
+        },
+        reminderSent: {
+            type: Boolean,
+            default: false,
         },
 
     },

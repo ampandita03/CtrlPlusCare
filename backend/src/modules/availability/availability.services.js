@@ -2,16 +2,11 @@ const Availability = require('./availability.model');
 const Appointment = require('../appointments/appointments.model');
 
 exports.getSlotsForDate = async (doctorId, date) => {
-    const availability = await Availability.findOne({ doctorId });
+    const today = new Date().toISOString().split('T')[0];
+    if (date < today) return [];
+
+    const availability = await Availability.findOne({ doctorId, date });
     if (!availability) return [];
-
-    // ✅ FIXED DATE PARSING
-    const [year, month, day] = date.split('-').map(Number);
-    const dayOfWeek = new Date(year, month - 1, day).getDay();
-
-    const daySlots = availability.slots.filter(
-        (s) => s.dayOfWeek === dayOfWeek
-    );
 
     const appointments = await Appointment.find({
         doctorId,
@@ -23,29 +18,26 @@ exports.getSlotsForDate = async (doctorId, date) => {
         appointments.map((a) => a.startTime)
     );
 
-    let generatedSlots = [];
+    let slots = [];
 
-    daySlots.forEach((slot) => {
-        let start = toMinutes(slot.startTime);
-        let end = toMinutes(slot.endTime);
+    let start = toMinutes(availability.startTime);
+    let end = toMinutes(availability.endTime);
 
-        while (start + slot.slotDuration <= end) {
-            const startTime = fromMinutes(start);
-            const endTime = fromMinutes(start + slot.slotDuration);
+    while (start + availability.slotDuration <= end) {
+        const startTime = fromMinutes(start);
+        const endTime = fromMinutes(start + availability.slotDuration);
 
-            generatedSlots.push({
-                startTime,
-                endTime,
-                isAvailable: !bookedTimes.has(startTime),
-            });
+        slots.push({
+            startTime,
+            endTime,
+            isAvailable: !bookedTimes.has(startTime),
+        });
 
-            start += slot.slotDuration;
-        }
-    });
+        start += availability.slotDuration;
+    }
 
-    return generatedSlots;
+    return slots;
 };
-
 
 // Helpers
 const toMinutes = (time) => {
