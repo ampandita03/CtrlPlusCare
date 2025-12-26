@@ -1,13 +1,26 @@
 const Availability = require('./availability.model');
+const Appointment = require('../appointments/appointments.model');
 
 exports.getSlotsForDate = async (doctorId, date) => {
     const availability = await Availability.findOne({ doctorId });
     if (!availability) return [];
 
-    const dayOfWeek = new Date(date).getDay();
+    // ✅ FIXED DATE PARSING
+    const [year, month, day] = date.split('-').map(Number);
+    const dayOfWeek = new Date(year, month - 1, day).getDay();
 
     const daySlots = availability.slots.filter(
         (s) => s.dayOfWeek === dayOfWeek
+    );
+
+    const appointments = await Appointment.find({
+        doctorId,
+        date,
+        status: 'BOOKED',
+    }).select('startTime');
+
+    const bookedTimes = new Set(
+        appointments.map((a) => a.startTime)
     );
 
     let generatedSlots = [];
@@ -17,16 +30,22 @@ exports.getSlotsForDate = async (doctorId, date) => {
         let end = toMinutes(slot.endTime);
 
         while (start + slot.slotDuration <= end) {
+            const startTime = fromMinutes(start);
+            const endTime = fromMinutes(start + slot.slotDuration);
+
             generatedSlots.push({
-                startTime: fromMinutes(start),
-                endTime: fromMinutes(start + slot.slotDuration),
+                startTime,
+                endTime,
+                isAvailable: !bookedTimes.has(startTime),
             });
+
             start += slot.slotDuration;
         }
     });
 
     return generatedSlots;
 };
+
 
 // Helpers
 const toMinutes = (time) => {

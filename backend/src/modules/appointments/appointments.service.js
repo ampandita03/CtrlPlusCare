@@ -7,13 +7,16 @@ exports.bookAppointment = async ({
                                      date,
                                      startTime,
                                      endTime,
+                                     paymentStatus,
                                  }) => {
     // 1️⃣ Check availability
     const slots = await AvailabilityService.getSlotsForDate(doctorId, date);
 
     const isValidSlot = slots.some(
-        (s) => s.startTime === startTime && s.endTime === endTime
-    );
+        (s) =>
+            s.startTime === startTime &&
+            s.endTime === endTime );
+    console.log('BOOKING doctorId:',slots);
 
     if (!isValidSlot) {
         throw new Error('Selected slot is not available');
@@ -50,6 +53,7 @@ exports.bookAppointment = async ({
         date,
         startTime,
         endTime,
+        paymentStatus
     });
 };
 

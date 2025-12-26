@@ -34,13 +34,20 @@ const appointmentSchema = new mongoose.Schema(
             enum: ['BOOKED', 'CANCELLED'],
             default: 'BOOKED',
         },
+        paymentStatus: {
+            type: String,
+            enum: ['PENDING','SUCCESS', 'FAILED'], //pending for pay at counter
+            default: 'PENDING',
+        }
     },
     { timestamps: true }
 );
 
 appointmentSchema.index(
-    { doctorId: 1, date: 1, startTime: 1 },
-    { unique: true }
+    { doctorId: 1, date: 1, startTime: 1  },
+    { unique: true,
+        partialFilterExpression: { status: 'BOOKED' },
+    }
 );
 
 module.exports = mongoose.model('Appointment', appointmentSchema);

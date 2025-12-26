@@ -11,6 +11,7 @@ exports.book = async (req, res) => {
             date: req.body.date,
             startTime: req.body.startTime,
             endTime: req.body.endTime,
+            paymentStatus: req.body.paymentStatus,
         });
 
         res.status(201).json({ success: true, data: appointment });
@@ -35,7 +36,8 @@ exports.getMyAppointments = async (req, res) => {
 exports.cancel = async (req, res) => {
     try {
         const { appointmentId } = req.params;
-
+        console.log('BODY:', req.params);
+        console.log('USER:', req.user.userId);
         const appointment = await service.cancelAppointment(
             appointmentId,
             req.user.userId
