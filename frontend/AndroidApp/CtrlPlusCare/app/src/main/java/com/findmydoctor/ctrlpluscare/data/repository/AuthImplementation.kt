@@ -18,6 +18,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
+import org.json.JSONObject
 
 class AuthImplementation(
     private val httpClient: HttpClient,
@@ -32,9 +33,18 @@ class AuthImplementation(
                 setBody(signIn)
             }
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                throw Exception("Failed with status: ${response.status}")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
             Unit
         }
@@ -61,15 +71,17 @@ class AuthImplementation(
             Log.d("SignIn", "Status: ${response.status}")
 
             val rawBody = response.bodyAsText()
-            Log.d("SignIn", "Raw response body: $rawBody")
 
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "SignIn",
-                    "❌ OTP verification failed | Status=${response.status} | Body=$rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("OTP verification failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             val parsedResponse =
                 Json.decodeFromString<SignInResult>(rawBody)
@@ -102,25 +114,25 @@ class AuthImplementation(
                 setBody(patientSignUp)
             }
 
-            Log.d("PatientSignUp", "⬅️ Response received")
-            Log.d("PatientSignUp", "Status code: ${response.status}")
-
             val rawBody = response.bodyAsText()
-            Log.d("PatientSignUp", "Raw response body: $rawBody")
 
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "PatientSignUp",
-                    "❌ Signup failed | Status=${response.status} | Body=$rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Signup failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             Log.d("PatientSignUp", "✅ Signup successful")
 
             Unit
         }
     }
+
 
     override suspend fun doctorSignUp(
         doctorSignUpRequest: DoctorSignUpRequest
@@ -141,16 +153,20 @@ class AuthImplementation(
             Log.d("DoctorSignUp", "⬅️ Response received")
             Log.d("DoctorSignUp", "Status: ${response.status}")
 
+
+
             val rawBody = response.bodyAsText()
-            Log.d("DoctorSignUp", "Raw response body: $rawBody")
 
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "DoctorSignUp",
-                    "❌ Doctor signup failed | Status=${response.status} | Body=$rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Doctor signup failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             Log.d("DoctorSignUp", "✅ Doctor signup successful")
 
@@ -159,4 +175,24 @@ class AuthImplementation(
     }
 
 
+}
+
+
+
+fun parseApiError(
+    rawBody: String,
+    defaultMessage: String = "Something went wrong"
+): String {
+    return try {
+        val json = JSONObject(rawBody)
+
+        when {
+            json.has("message") -> json.getString("message")
+            json.has("error") -> json.getString("error")
+            json.has("detail") -> json.getString("detail")
+            else -> defaultMessage
+        }
+    } catch (e: Exception) {
+        defaultMessage
+    }
 }

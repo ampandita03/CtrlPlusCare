@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Male
 import androidx.compose.material.icons.outlined.Numbers
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +56,7 @@ import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.CommonRoundCornersBut
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.RequestLocationPermissionOnce
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
+import com.findmydoctor.ctrlpluscare.ui.theme.TextDisabled
 import com.findmydoctor.ctrlpluscare.utils.fetchUserLocation
 import org.koin.compose.viewmodel.koinViewModel
 import java.util.Locale
@@ -64,27 +67,30 @@ fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignU
 
     val uiState by viewModel.uiState.collectAsState()
     val fcmToken by viewModel.fcmToken.collectAsState()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
+    var ageError by remember { mutableStateOf<String?>(null) }
+    var heightError by remember { mutableStateOf<String?>(null) }
+    var weightError by remember { mutableStateOf<String?>(null) }
+    var addressError by remember { mutableStateOf<String?>(null) }
 
 
-    LaunchedEffect(
-        uiState
-    ) {
-        when(uiState) {
-            is PatientSignUpUiState.Error ->{}
 
-            PatientSignUpUiState.Idle -> {
-
-            }
-            PatientSignUpUiState.Loading -> {
-
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is PatientSignUpUiState.Error -> {
+                errorMessage = (uiState as PatientSignUpUiState.Error).message
             }
             PatientSignUpUiState.Success -> {
-                navController.navigate(AppRoute.Login.route)
-
+                navController.navigate(AppRoute.Login.route) {
+                    popUpTo(AppRoute.Login.route) { inclusive = true }
+                }
             }
+            else -> {}
         }
-
     }
+
 
     val context = LocalContext.current
 
@@ -119,6 +125,37 @@ fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignU
     var height by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+
+    fun validateFields(): Boolean {
+        var valid = true
+
+        nameError = if (name.isBlank()) {
+            valid = false; "Name is required"
+        } else null
+
+        phoneError = if (phone.length != 10) {
+            valid = false; "Enter valid 10 digit phone number"
+        } else null
+
+        ageError = if (age.toIntOrNull() == null || age.toInt() !in 1..120) {
+            valid = false; "Enter valid age"
+        } else null
+
+        heightError = if (height.toIntOrNull() == null) {
+            valid = false; "Enter valid height"
+        } else null
+
+        weightError = if (weight.toIntOrNull() == null) {
+            valid = false; "Enter valid weight"
+        } else null
+
+        addressError = if (address.isBlank()) {
+            valid = false; "Address is required"
+        } else null
+
+        return valid
+    }
+
 
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -183,12 +220,17 @@ fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignU
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .clickable {
+                    .clickable(enabled = !isUploading) {
                         launcher.launch("image/*")
                     }
-                        ,
+
+                ,
                 contentScale = ContentScale.Crop
             )
+            if (isUploading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            }
+
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -196,126 +238,225 @@ fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignU
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                errorMessage?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(end = 24.dp)
+                    )
+                }
                 CommonAuthTextField(
                     value = name,
                     onValueChange = {
                         name = it
+                        nameError = null
                     },
-                    placeholder ="Enter your name" ,
+                    placeholder = "Enter your name",
                     title = "Full Name",
                     icon = Icons.Outlined.Mail,
                     isTrailingIcon = false,
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Text
                 )
+
+                nameError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 CommonAuthTextField(
                     value = phone,
                     onValueChange = {
                         phone = it
+                        phoneError = null
                     },
-                    placeholder ="Enter your Phone no" ,
+                    placeholder = "Enter your Phone no",
                     title = "Phone Number",
                     icon = Icons.Outlined.Phone,
                     isTrailingIcon = false,
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Phone
                 )
-                CommonAuthTextField(
-                    value = gender,
-                    onValueChange = {
-                        gender = it
-                    },
-                    placeholder ="Gender (Male/Female)" ,
-                    title = "Gender",
-                    icon = Icons.Outlined.Male,
-                    isTrailingIcon = false,
-                    onTrailingIconClick = {},
-                    keyboardType = KeyboardType.Text
-                )
+
+                phoneError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 CommonAuthTextField(
                     value = age,
                     onValueChange = {
                         age = it
+                        ageError = null
                     },
-                    placeholder ="Enter your age" ,
+                    placeholder = "Enter your age",
                     title = "Age",
                     icon = Icons.Outlined.Numbers,
                     isTrailingIcon = false,
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Number
                 )
+
+                ageError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 CommonAuthTextField(
                     value = height,
                     onValueChange = {
                         height = it
+                        heightError = null
                     },
-                    placeholder ="Enter your height in cm" ,
+                    placeholder = "Enter your height in cm",
                     title = "Height",
                     icon = Icons.Outlined.Height,
                     isTrailingIcon = false,
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Number
                 )
+
+                heightError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 CommonAuthTextField(
                     value = weight,
                     onValueChange = {
                         weight = it
+                        weightError = null
                     },
-                    placeholder ="Enter your Weight in kgs" ,
+                    placeholder = "Enter your Weight in kgs",
                     title = "Weight",
                     icon = Icons.Outlined.LineWeight,
                     isTrailingIcon = false,
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Number
                 )
+
+                weightError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 CommonAuthTextField(
                     value = address,
                     onValueChange = {
                         address = it
+                        addressError = null
                     },
-                    placeholder ="Enter your Address" ,
+                    placeholder = "Enter your Address",
                     title = "Address",
                     icon = Icons.Outlined.LocationOn,
                     isTrailingIcon = false,
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Text
                 )
-            }
-        }
 
-        Spacer(Modifier.height(10.dp))
-
-            CommonRoundCornersButton(
-                text = "Sign Up",
-                tint = PrimaryBlue
-            ) {
-                val isLocationReady = location.latitude != 0.0 && location.longitude != 0.0
-
-                if (isLocationReady && !isUploading){
-                    viewModel.signUp(
-                        patientProfileRequest = PatientProfileRequest(
-                            name = name,
-                            age = age.toIntOrNull()?:0,
-                            gender = gender.toUpperCase(Locale.ROOT) ,
-                            address = address,
-                            phoneNumber = phone,
-                            height = height,
-                            weight = weight,
-                            location = ClinicLocation(
-                                type = "Point",
-                                coordinates = listOf(location.longitude,location.latitude)
-                            ),
-                            imageLink = imageUrl ?: "",
-                            role = "PATIENT",
-                            fcmToken = fcmToken ?: "none"
-
-                        )
+                addressError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
+
+
             }
+        }
 
 
+        Spacer(Modifier.height(10.dp))
+        val isLocationReady = location.latitude != 0.0 && location.longitude != 0.0
+        val isFormValid = validateForm(
+            name, phone, age, height, weight, address
+        ) == null
+
+        val canSubmit =
+            isFormValid &&
+                    isLocationReady &&
+                    imageUrl?.isNotEmpty() == true &&
+                    !isUploading &&
+                    uiState !is PatientSignUpUiState.Loading
+        CommonRoundCornersButton(
+            text = if (uiState is PatientSignUpUiState.Loading) "Signing Up..." else "Sign Up",
+            tint = if (canSubmit) PrimaryBlue else TextDisabled
+        ) {
+            val validationError = validateForm(
+                name, phone, age, height, weight, address
+            )
+            if (!validateFields()) return@CommonRoundCornersButton
+
+            if (validationError != null) {
+                errorMessage = validationError
+                return@CommonRoundCornersButton
+            }
+            if (canSubmit)
+            viewModel.signUp(
+                patientProfileRequest = PatientProfileRequest(
+                    name = name,
+                    age = age.toInt(),
+                    address = address,
+                    phoneNumber = phone,
+                    height = height,
+                    weight = weight,
+                    location = ClinicLocation(
+                        type = "Point",
+                        coordinates = listOf(location.longitude, location.latitude)
+                    ),
+                    imageLink = imageUrl ?:"",
+                    role = "PATIENT",
+                    fcmToken = fcmToken ?: "none"
+                )
+            )
+            if (imageUrl?.isNotEmpty() != true || imageUrl == ""){
+                errorMessage = "Pls upload profile picture"
+            }
+        }
         Spacer(Modifier.height(15.dp))
+    }
+
+}
+
+fun validateForm(
+    name: String,
+    phone: String,
+    age: String,
+    height: String,
+    weight: String,
+    address: String
+): String? {
+    return when {
+        name.isBlank() -> "Name is required"
+        phone.length != 10 -> "Enter valid 10 digit phone number"
+        age.toIntOrNull() == null || age.toInt() !in 1..120 -> "Enter valid age"
+        height.toIntOrNull() == null -> "Enter valid height"
+        weight.toIntOrNull() == null -> "Enter valid weight"
+        address.isBlank() -> "Address is required"
+        else -> null
     }
 }

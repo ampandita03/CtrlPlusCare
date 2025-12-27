@@ -195,6 +195,10 @@ fun BookingScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+
+            is CurrentDoctorUiState.Error -> {
+
+            }
         }
     }
 
@@ -211,7 +215,7 @@ fun BookingScreen(
                     (uiState as BookingScreenUiState.Error).message,
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.e("Booking","${(uiState as BookingScreenUiState.Error).message}")
+                Log.e("Booking", (uiState as BookingScreenUiState.Error).message)
             }
             else -> {}
         }

@@ -336,39 +336,71 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
             item {
                 Spacer(Modifier.height(10.dp))
             }
-            when(uiState){
-                is PatientHomeScreenUiState.Error -> {
-                    item {
-                        Text("Couldn't Load Doctors")
-                    }
-                }
-                PatientHomeScreenUiState.Idle -> {
+            when (uiState) {
 
-                }
                 PatientHomeScreenUiState.Loading -> {
                     item {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()){
-                            CircularProgressIndicator(
-                                color = PrimaryBlue
-                            )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = PrimaryBlue)
                         }
                     }
                 }
-                is PatientHomeScreenUiState.NearByDoctorsLoaded -> {
-                    val data = (uiState as PatientHomeScreenUiState.NearByDoctorsLoaded).doctors.data
-                    val filteredData = data.filter { doctor->
-                        doctor.name.contains(searchQuery.trim(), ignoreCase = true) ||
-                                doctor.specialty.contains(searchQuery.trim(), ignoreCase = true)||
-                                doctor.clinicAddress.contains(searchQuery.trim(), ignoreCase = true)
-                    }
-                    items(filteredData) {
-                        DoctorCard(doctor = it, onClick = {
-                            viewModel.saveCurrentDoctor(it)
-                            navController.navigate(AppRoute.DoctorInfoScreen.route)
-                        })
+
+                is PatientHomeScreenUiState.Error -> {
+                    val errorMessage =
+                        (uiState as PatientHomeScreenUiState.Error).message
+
+                    item {
+                        PatientHomeErrorScreen(
+                            message = errorMessage,
+                            onRetry = {
+                                viewModel.getNearbyDoctors()
+                            }
+                        )
                     }
                 }
+
+                is PatientHomeScreenUiState.NearByDoctorsLoaded -> {
+                    val data =
+                        (uiState as PatientHomeScreenUiState.NearByDoctorsLoaded).doctors.data
+
+                    val filteredData = data.filter { doctor ->
+                        doctor.name.contains(searchQuery.trim(), true) ||
+                                doctor.specialty.contains(searchQuery.trim(), true) ||
+                                doctor.clinicAddress.contains(searchQuery.trim(), true)
+                    }
+
+                    if (filteredData.isEmpty()) {
+                        item {
+                            EmptyDoctorSearchResult(
+                                searchQuery = searchQuery,
+                                onNavigate = {
+                                    navController.navigate(AppRoute.PatientDiscoveryPage.route)
+                                }
+                            )
+                        }
+                    } else {
+                        items(filteredData) {
+                            DoctorCard(
+                                doctor = it,
+                                onClick = {
+                                    viewModel.saveCurrentDoctor(it)
+                                    navController.navigate(AppRoute.DoctorInfoScreen.route)
+                                }
+                            )
+                        }
+                    }
+
+                }
+
+                PatientHomeScreenUiState.Idle -> Unit
             }
+
             item {
                 Spacer(Modifier.height(60.dp))
             }
@@ -460,4 +492,147 @@ fun CustomSearchBar(
         )
     }
 
+}
+@Composable
+fun PatientHomeErrorScreen(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.LocationOn,
+                contentDescription = null,
+                tint = EmergencyRed,
+                modifier = Modifier.size(60.dp)
+            )
+
+            Text(
+                text = "Something went wrong",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = W600
+                ),
+                color = TextPrimary
+            )
+
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextPrimary.copy(alpha = 0.6f),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            OutlinedCard(
+                modifier = Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { onRetry() },
+                shape = RoundedCornerShape(50.dp),
+                border = BorderStroke(1.dp, PrimaryBlue)
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        horizontal = 24.dp,
+                        vertical = 10.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Dehaze,
+                        contentDescription = null,
+                        tint = PrimaryBlue
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Reload",
+                        color = PrimaryBlue,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = W500
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+@Composable
+fun EmptyDoctorSearchResult(
+    searchQuery: String,
+    onNavigate: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 40.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Search,
+                contentDescription = null,
+                tint = TextDisabled,
+                modifier = Modifier.size(50.dp)
+            )
+
+            Text(
+                text = "No doctors found",
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary
+            )
+
+            Text(
+                text = "Try changing your search or explore doctors",
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextPrimary.copy(alpha = 0.6f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            OutlinedCard(
+                modifier = Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { onNavigate() },
+                shape = RoundedCornerShape(50.dp),
+                border = BorderStroke(1.dp, PrimaryBlue)
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        horizontal = 24.dp,
+                        vertical = 10.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = null,
+                        tint = PrimaryBlue
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Discover Doctors",
+                        color = PrimaryBlue,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
+    }
 }

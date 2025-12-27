@@ -40,10 +40,18 @@ class DoctorImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             response.body<DoctorProfileResponse>()
@@ -79,10 +87,18 @@ class DoctorImplementation(
                 setBody(body)
             }
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val error = response.bodyAsText()
-                throw Exception("Failed: ${response.status} - $error")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
             Unit
         }
@@ -105,10 +121,18 @@ class DoctorImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             response.body<PatientAppointmentResponse>()
@@ -130,9 +154,16 @@ class DoctorImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
 
 
@@ -155,10 +186,18 @@ class DoctorImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             Unit
@@ -180,10 +219,18 @@ class DoctorImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             Unit

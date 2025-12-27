@@ -57,15 +57,17 @@ class SlotsImplementation(
             Log.d("TimeSlot", "Status: ${response.status}")
 
             val rawBody = response.bodyAsText()
-            Log.d("TimeSlot", "Raw response body: $rawBody")
 
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "TimeSlot",
-                    "❌ API failed | Status: ${response.status} | Body: $rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Failed to load slots: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             val parsedResponse = response.body<TimeSlotsResponse>()
             Log.d("TimeSlot", "✅ Parsed response: $parsedResponse")
@@ -82,9 +84,10 @@ class SlotsImplementation(
 
             val token = localStorage.getToken()
 
-            Log.d("BookSlot", "➡️ Book slot request started")
+            Log.d("BookSlot", "================ BOOK SLOT START ================")
+            Log.d("BookSlot", "Request URL: ${Constants.SERVER_ADDRESS}api/appointments")
             Log.d("BookSlot", "Request body: $bookAppointmentRequest")
-            Log.d("BookSlot", "Token present: ${!token.isNullOrBlank()}")
+            Log.d("BookSlot", "Auth token present: ${!token.isNullOrBlank()}")
 
             val response = httpClient.post("${Constants.SERVER_ADDRESS}api/appointments") {
                 headers {
@@ -94,25 +97,42 @@ class SlotsImplementation(
                 setBody(bookAppointmentRequest)
             }
 
-            Log.d("BookSlot", "⬅️ Response received")
-            Log.d("BookSlot", "Status: ${response.status}")
-
+            val statusCode = response.status.value
+            val statusText = response.status.description
             val rawBody = response.bodyAsText()
+
+            Log.d("BookSlot", "⬅️ Response received")
+            Log.d("BookSlot", "Status code: $statusCode ($statusText)")
             Log.d("BookSlot", "Raw response body: $rawBody")
 
-            if (!response.status.isSuccess()/* && response.status.value!=400*/) {
+            if (!response.status.isSuccess() && statusCode != 400) {
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Failed to book slot"
+                )
+
                 Log.e(
                     "BookSlot",
-                    "❌ Slot booking failed | Status=${response.status} | Body=$rawBody"
+                    "❌ Slot booking failed | Status=$statusCode | Message=$errorMessage"
                 )
-                throw Exception("Slot booking failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
 
             Log.d("BookSlot", "✅ Slot booked successfully")
+            Log.d("BookSlot", "================ BOOK SLOT END ==================")
 
             Unit
+        }.onFailure { e ->
+            Log.e(
+                "BookSlot",
+                "🔥 Exception occurred while booking slot",
+                e
+            )
         }
     }
+
 
     override suspend fun emergencyBooking(emergencyBookingRequest: EmergencyBookingRequest): Result<EmergencyBookingResponse> {
         return runCatching {
@@ -137,13 +157,17 @@ class SlotsImplementation(
             val rawBody = response.bodyAsText()
             Log.d("BookSlot", "Raw response body: $rawBody")
 
-            if (!response.status.isSuccess()/* && response.status.value!=400*/) {
-                Log.e(
-                    "BookSlot",
-                    "❌ Slot booking failed | Status=${response.status} | Body=$rawBody"
+
+            if (!response.status.isSuccess()) {
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Slot booking failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             Log.d("BookSlot", "✅ Slot booked successfully")
 
@@ -166,10 +190,18 @@ class SlotsImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             Unit

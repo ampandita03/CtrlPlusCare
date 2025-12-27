@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.findmydoctor.ctrlpluscare.R
 import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.CommonRoundCornersButton
+import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.TopAppBar
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingconfirmed.AppointmentDetailsCard
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingscreen.CurrentBookingUiState
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.doctorinfoscreen.CurrentDoctorUiState
@@ -48,6 +49,13 @@ fun EmergencyBookingConfirmScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = "Booking Confirmation"
+            ) {
+                navController.popBackStack()
+            }
+        },
         containerColor = Color.White
     ) { innerPadding ->
 

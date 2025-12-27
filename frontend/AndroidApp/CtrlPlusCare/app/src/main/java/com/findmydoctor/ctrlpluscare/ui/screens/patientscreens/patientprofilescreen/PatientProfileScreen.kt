@@ -227,16 +227,7 @@ fun PatientProfileScreen(
                             }
                         )
 
-                        // Email Field
-                        InfoField(
-                            label = "Email",
-                            value = "ruchita@gmail.com",
-                            onEditClick = {
-                                editField = "email"
-                                editValue = "ruchita@gmail.com"
-                                showEditDialog = true
-                            }
-                        )
+
 
                         // Location Field
                         InfoField(

@@ -62,6 +62,10 @@ fun LoginScreen(navController: NavController,viewModel: LoginViewModel = koinVie
     var otp by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
+    val isPhoneValid = phoneNumber.length == 10
+    val isOtpValid = otp.length == 6
+
+    val canLogin = isPhoneValid && isOtpValid
 
     var showTrailing by remember { mutableStateOf(false) }
 
@@ -150,20 +154,20 @@ fun LoginScreen(navController: NavController,viewModel: LoginViewModel = koinVie
                     CommonAuthTextField(
                         value = phoneNumber,
                         onValueChange = {
-
-                            if (it.length <= 10) {
+                            if (it.length <= 10 && it.all { ch -> ch.isDigit() }) {
                                 phoneNumber = it
-
+                                errorMessage = ""
                             }
-                            if (it.length<10){
+
+                            if (it.length < 10) {
                                 viewModel.resetUiState()
                             }
 
                             if (it.length == 10) {
                                 viewModel.signIn(it)
                             }
-
-                        },
+                        }
+                        ,
                         placeholder = "Enter your phone",
                         title = "Phone Number",
                         icon = Icons.Outlined.Phone,
@@ -178,10 +182,13 @@ fun LoginScreen(navController: NavController,viewModel: LoginViewModel = koinVie
                     CommonAuthTextField(
                         value = otp,
                         onValueChange = {
-                            if (otp.length < 6)
-                            otp = it
+                            if (it.length <= 6 && it.all { ch -> ch.isDigit() }) {
+                                otp = it
+                                errorMessage = ""
+                            }
                         },
-                        placeholder = "Enter your OTP",
+
+                                placeholder = "Enter your OTP",
                         title = "OTP",
                         icon = Icons.Outlined.Password,
                         keyboardType = KeyboardType.Phone
@@ -209,15 +216,22 @@ fun LoginScreen(navController: NavController,viewModel: LoginViewModel = koinVie
                     Spacer(Modifier.height(15.dp))
                     CommonRoundCornersButton(
                         text = "Login",
-                        tint = PrimaryBlue,
+                        tint = if (canLogin) PrimaryBlue else TextDisabled,
                         onClick = {
-                            if (phoneNumber.length ==10)
-                            viewModel.signInOtp(phoneNumber,otp)
-                            else
-                                errorMessage = "Please enter a valid phone number"
+                            when {
+                                !isPhoneValid ->
+                                    errorMessage = "Phone number must be 10 digits"
+
+                                !isOtpValid ->
+                                    errorMessage = "OTP must be 6 digits"
+
+                                else ->
+                                    viewModel.signInOtp(phoneNumber, otp)
+                            }
                         },
                         paddingValues = 10.dp
                     )
+
                     Spacer(Modifier.height(30.dp))
 
                 }

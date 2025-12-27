@@ -25,41 +25,43 @@ class EmergencyBookingConfirmViewModel(
 
     fun getCurrentDoctor() {
         viewModelScope.launch {
-            Log.d("EmergencyConfirmVM", "➡️ Fetching current doctor from local storage")
+            _doctor.value = CurrentDoctorUiState.Loading
 
             val current = localStorage.getCurrentDoctor()
 
             if (current == null) {
-                Log.e("EmergencyConfirmVM", "❌ No doctor found in local storage")
+                _doctor.value = CurrentDoctorUiState.Error(
+                    message = "Doctor information not available"
+                )
                 return@launch
             }
-
-            Log.d(
-                "EmergencyConfirmVM",
-                "✅ Doctor loaded | id=${current._id}, name=${current.name}"
-            )
 
             _doctor.value = CurrentDoctorUiState.Success(current)
         }
     }
 
+
     fun getBookingData() {
         viewModelScope.launch {
+            _booking.value = EmergencyDoctorInfoUiState.Loading
+
             Log.d("EmergencyConfirmVM", "➡️ Fetching emergency booking data")
 
             val data = localStorage.getCurrentEmergencyBooking()
 
             if (data == null) {
                 Log.e("EmergencyConfirmVM", "❌ No emergency booking found")
+
+                _booking.value = EmergencyDoctorInfoUiState.Error(
+                    message = "No emergency booking found"
+                )
                 return@launch
             }
 
-            Log.d(
-                "EmergencyConfirmVM",
-                "✅ Booking loaded | date=$data"
-            )
+            Log.d("EmergencyConfirmVM", "✅ Booking loaded")
 
             _booking.value = EmergencyDoctorInfoUiState.Success(data)
         }
     }
+
 }

@@ -47,8 +47,9 @@ class BookingScreenViewModel(
     }
     fun getBookingData(){
         viewModelScope.launch {
-            val data = localStorage.getCurrentBooking()
-            _booking.value = CurrentBookingUiState.Success(data!!)
+            val data = localStorage.getCurrentBooking() ?: return@launch
+            _booking.value = CurrentBookingUiState.Success(data)
+
         }
     }
 }

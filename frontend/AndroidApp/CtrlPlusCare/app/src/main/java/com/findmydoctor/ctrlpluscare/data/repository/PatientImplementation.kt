@@ -44,11 +44,18 @@ class PatientImplementation(
 
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
+            val rawBody = response.bodyAsText()
 
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             response.body<DoctorResponse>()
@@ -70,9 +77,16 @@ class PatientImplementation(
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
 
+            val rawBody = response.bodyAsText()
+
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
 
 
@@ -94,11 +108,18 @@ class PatientImplementation(
 
             /*Log.d("SignIn","$signInOtp")
             Log.d("SignIn","${response.body<SignInResult>()}")*/
+            val rawBody = response.bodyAsText()
 
             if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsText()
-                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
+                )
+
+                throw Exception(errorMessage)
             }
+
 
 
             response.body<AppointmentsResponse>()
@@ -127,17 +148,18 @@ class PatientImplementation(
 
             Log.d("CancelAppointment", "⬅️ Response received")
             Log.d("CancelAppointment", "Status: ${response.status}")
-
             val rawBody = response.bodyAsText()
-            Log.d("CancelAppointment", "Raw response body: $rawBody")
 
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "CancelAppointment",
-                    "❌ Cancel failed | Status=${response.status} | Body=$rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Cancel appointment failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             Log.d("CancelAppointment", "✅ Appointment cancelled successfully")
 
@@ -166,15 +188,17 @@ class PatientImplementation(
 
             // ⚠️ Read body ONLY ONCE
             val rawBody = response.bodyAsText()
-            Log.d("PatientProfile", "Raw response body: $rawBody")
 
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "PatientProfile",
-                    "❌ Failed to fetch profile | Status=${response.status} | Body=$rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Failed to fetch patient profile: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             val parsedResponse =
                 Json.decodeFromString<PatientProfileResponse>(rawBody)
@@ -211,13 +235,17 @@ class PatientImplementation(
             val rawBody = response.bodyAsText()
             Log.d("UpdateProfile", "Raw response body: $rawBody")
 
+
             if (!response.status.isSuccess()) {
-                Log.e(
-                    "UpdateProfile",
-                    "❌ Profile update failed | Status=${response.status} | Body=$rawBody"
+
+                val errorMessage = parseApiError(
+                    rawBody = rawBody,
+                    defaultMessage = "Signup failed"
                 )
-                throw Exception("Profile update failed: ${response.status}")
+
+                throw Exception(errorMessage)
             }
+
 
             Log.d("UpdateProfile", "✅ Profile updated successfully")
 

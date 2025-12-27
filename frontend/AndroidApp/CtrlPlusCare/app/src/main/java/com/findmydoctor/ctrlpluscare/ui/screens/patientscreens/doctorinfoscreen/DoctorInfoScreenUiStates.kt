@@ -13,4 +13,6 @@ sealed class DoctorInfoScreenUiStates {
 sealed class CurrentDoctorUiState{
     object Loading : CurrentDoctorUiState()
     data class Success(val doctor: Doctor ) : CurrentDoctorUiState()
+    data class Error(val message: String) : CurrentDoctorUiState()
+
 }

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class PatientProfileRequest(
     val name: String,
     val age: Int,
-    val gender: String,
+    val gender: String = "MALE",
     val address: String,
     val phoneNumber: String,
     val height: String,

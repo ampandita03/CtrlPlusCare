@@ -45,7 +45,7 @@ fun PatientDiscoveryPage(navController: NavController,viewModel: PatientDiscover
             TopAppBar(
                 title = "Discovery"
             ) {
-
+                navController.popBackStack()
             }
         }
     ) {

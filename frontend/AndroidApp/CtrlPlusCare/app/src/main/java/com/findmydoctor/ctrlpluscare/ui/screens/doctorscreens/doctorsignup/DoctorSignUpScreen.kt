@@ -65,6 +65,7 @@ import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientsignup.Pat
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
 import com.findmydoctor.ctrlpluscare.ui.theme.SuccessGreen
+import com.findmydoctor.ctrlpluscare.ui.theme.TextDisabled
 import com.findmydoctor.ctrlpluscare.utils.fetchUserLocation
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,10 +76,13 @@ fun DoctorSignUpScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val fcmToken by viewModel.fcmToken.collectAsState()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(uiState) {
         when (uiState) {
-            is PatientSignUpUiState.Error -> {}
+            is PatientSignUpUiState.Error -> {
+                errorMessage = (uiState as PatientSignUpUiState.Error).message
+            }
             PatientSignUpUiState.Idle -> {}
             PatientSignUpUiState.Loading -> {}
             PatientSignUpUiState.Success -> {
@@ -128,6 +132,61 @@ fun DoctorSignUpScreen(
     val isUploadingProfile by viewModel.isUploadingProfile.collectAsState()
     val isUploadingDocument by viewModel.isUploadingDocument.collectAsState()
     val location by viewModel.location.collectAsState()
+
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
+    var specialtyError by remember { mutableStateOf<String?>(null) }
+    var feeError by remember { mutableStateOf<String?>(null) }
+    var clinicAddressError by remember { mutableStateOf<String?>(null) }
+    var aboutError by remember { mutableStateOf<String?>(null) }
+    var documentError by remember { mutableStateOf<String?>(null) }
+    var profileImageError by remember { mutableStateOf<String?>(null) }
+
+    fun validateDoctorFields(): Boolean {
+        var valid = true
+
+        nameError = if (name.isBlank()) {
+            valid = false; "Name is required"
+        } else null
+
+        emailError = if (
+            email.isBlank() ||
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        ) {
+            valid = false; "Enter a valid email"
+        } else null
+
+        phoneError = if (phone.length != 10) {
+            valid = false; "Enter valid 10 digit phone number"
+        } else null
+
+        specialtyError = if (specialty.isBlank()) {
+            valid = false; "Specialty is required"
+        } else null
+
+        feeError = if (consultationFee.toIntOrNull() == null || consultationFee.toInt() <= 0) {
+            valid = false; "Enter valid consultation fee"
+        } else null
+
+        clinicAddressError = if (clinicAddress.isBlank()) {
+            valid = false; "Clinic address is required"
+        } else null
+
+        aboutError = if (about.length < 10) {
+            valid = false; "About section should be at least 10 characters"
+        } else null
+
+        profileImageError = if (profileImageUrl.isNullOrBlank()) {
+            valid = false; "Profile image is required"
+        } else null
+
+        documentError = if (documentImageUrl.isNullOrBlank()) {
+            valid = false; "Verification document is required"
+        } else null
+
+        return valid
+    }
 
     // Profile image launcher
     val profileLauncher = rememberLauncherForActivityResult(
@@ -190,7 +249,14 @@ fun DoctorSignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(16.dp))
-
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(end = 24.dp)
+                )
+            }
             // Profile Image
             AsyncImage(
                 model = profileImageUri ?: R.drawable.patienticon,
@@ -211,6 +277,10 @@ fun DoctorSignUpScreen(
                     color = SuccessGreen
                 )
             }
+            profileImageError?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+            }
+
 
             Spacer(Modifier.height(16.dp))
 
@@ -223,7 +293,10 @@ fun DoctorSignUpScreen(
             ) {
                 CommonAuthTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = {
+                        name = it
+                        nameError = null
+                    },
                     placeholder = "Enter your name",
                     title = "Full Name",
                     icon = Icons.Outlined.Person,
@@ -232,9 +305,17 @@ fun DoctorSignUpScreen(
                     keyboardType = KeyboardType.Text
                 )
 
+                nameError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
+
                 CommonAuthTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        emailError = null
+                    },
                     placeholder = "Enter your email",
                     title = "Email",
                     icon = Icons.Outlined.Email,
@@ -243,9 +324,17 @@ fun DoctorSignUpScreen(
                     keyboardType = KeyboardType.Email
                 )
 
+                emailError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
+
                 CommonAuthTextField(
                     value = phone,
-                    onValueChange = { phone = it },
+                    onValueChange = {
+                        phone = it
+                        phoneError = null
+                    },
                     placeholder = "Enter your phone number",
                     title = "Phone Number",
                     icon = Icons.Outlined.Phone,
@@ -254,9 +343,17 @@ fun DoctorSignUpScreen(
                     keyboardType = KeyboardType.Phone
                 )
 
+                phoneError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
+
                 CommonAuthTextField(
                     value = specialty,
-                    onValueChange = { specialty = it },
+                    onValueChange = {
+                        specialty = it
+                        specialtyError = null
+                    },
                     placeholder = "Enter your specialty",
                     title = "Specialty",
                     icon = Icons.Outlined.MedicalServices,
@@ -265,9 +362,16 @@ fun DoctorSignUpScreen(
                     keyboardType = KeyboardType.Text
                 )
 
+                specialtyError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
                 CommonAuthTextField(
                     value = consultationFee,
-                    onValueChange = { consultationFee = it },
+                    onValueChange = {
+                        consultationFee = it
+                        feeError = null
+                    },
                     placeholder = "Enter the amount",
                     title = "Consultation Fees",
                     icon = Icons.Outlined.CurrencyRupee,
@@ -276,9 +380,17 @@ fun DoctorSignUpScreen(
                     keyboardType = KeyboardType.Number
                 )
 
+                feeError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
+
                 CommonAuthTextField(
                     value = clinicAddress,
-                    onValueChange = { clinicAddress = it },
+                    onValueChange = {
+                        clinicAddress = it
+                        clinicAddressError = null
+                    },
                     placeholder = "Enter your clinic address",
                     title = "Clinic Address",
                     icon = Icons.Outlined.LocationOn,
@@ -287,9 +399,17 @@ fun DoctorSignUpScreen(
                     keyboardType = KeyboardType.Text
                 )
 
+                clinicAddressError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
+
                 CommonAuthTextField(
                     value = about,
-                    onValueChange = { about = it },
+                    onValueChange = {
+                        about = it
+                        aboutError = null
+                    },
                     placeholder = "Tell us about yourself",
                     title = "About Section",
                     icon = Icons.Outlined.Description,
@@ -297,6 +417,11 @@ fun DoctorSignUpScreen(
                     onTrailingIconClick = {},
                     keyboardType = KeyboardType.Text
                 )
+
+                aboutError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
 
                 // Upload Document Card
                 Text(
@@ -363,15 +488,11 @@ fun DoctorSignUpScreen(
                         }
                     }
                 }
+                documentError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
 
-                Spacer(Modifier.height(8.dp))
 
-                Text(
-                    text = "Use your current location",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = SuccessGreen,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
 
             Spacer(Modifier.height(16.dp))
@@ -385,39 +506,36 @@ fun DoctorSignUpScreen(
         ) {
             CommonRoundCornersButton(
                 text = "Sign Up",
-                tint = SuccessGreen,
-
+                tint =if(validateDoctorFields()) SuccessGreen else TextDisabled
             ) {
                 val isLocationReady = location.latitude != 0.0 && location.longitude != 0.0
 
-                if (isLocationReady &&
-                    !isUploadingProfile &&
-                    !isUploadingDocument &&
-                    profileImageUrl != null &&
-                    documentImageUrl != null) {
-                    viewModel.signUp(
-                        doctorSignUpRequest = DoctorSignUpRequest(
-                            name = name,
-                            specialty = specialty,
-                            clinicLocation = ClinicLocation(
-                                type = "Point",
-                                coordinates = listOf(location.longitude, location.latitude)
-                            ),
-                            clinicAddress = clinicAddress,
-                            consultationFee = consultationFee.toIntOrNull() ?: 0,
-                            email = email,
-                            phoneNumber = phone,
-                            about = about,
-                            profileUrl = profileImageUrl ?: "",
-                            documentUrl = documentImageUrl ?: "",
-                            role = "DOCTOR",
-                            fcmToken = fcmToken ?: "none"
-                        )
+                if (!isLocationReady) return@CommonRoundCornersButton
+                if (!validateDoctorFields()) return@CommonRoundCornersButton
+
+                viewModel.signUp(
+                    doctorSignUpRequest = DoctorSignUpRequest(
+                        name = name,
+                        specialty = specialty,
+                        clinicLocation = ClinicLocation(
+                            type = "Point",
+                            coordinates = listOf(location.longitude, location.latitude)
+                        ),
+                        clinicAddress = clinicAddress,
+                        consultationFee = consultationFee.toInt(),
+                        email = email,
+                        phoneNumber = phone,
+                        about = about,
+                        profileUrl = profileImageUrl!!,
+                        documentUrl = documentImageUrl!!,
+                        role = "DOCTOR",
+                        fcmToken = fcmToken ?: "none"
                     )
-                }
+                )
             }
+
+        }
 
             Spacer(Modifier.height(15.dp))
         }
     }
-}
