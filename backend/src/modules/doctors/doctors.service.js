@@ -27,8 +27,9 @@ exports.getAllDoctors = async () => {
 
 
 exports.updateDoctorProfile = async (userId, data) => {
+    console.log(userId);
     const doctor = await Doctor.findOneAndUpdate(
-        { userId },
+        { _id:userId },
         data,
         { new: true }
     );
