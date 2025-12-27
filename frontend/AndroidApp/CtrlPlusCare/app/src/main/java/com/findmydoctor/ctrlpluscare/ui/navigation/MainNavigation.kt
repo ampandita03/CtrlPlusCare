@@ -17,6 +17,7 @@ import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorhomescreen.D
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorprofile.DoctorProfileScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorsignup.DoctorSignUpScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorslotsscreen.DoctorSlotsScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.notification.DoctorNotificationsScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.login.LoginScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.logintypechoose.LoginTypeChose
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingconfirmed.BookingConfirmScreen
@@ -40,6 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
     val userRole by viewModel.role.collectAsState()
+    val unreadCount by viewModel.unreadCount.collectAsState()
 
 
 
@@ -64,7 +66,8 @@ fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
         AppRoute.PatientProfileScreen.route,
         AppRoute.DoctorHomeScreen.route,
         AppRoute.DoctorNotificationScreen.route,
-        AppRoute.DoctorProfileScreen.route
+        AppRoute.DoctorProfileScreen.route,
+        AppRoute.DoctorSlotsScreen.route
     )
 
     LaunchedEffect(showBottomBar) {
@@ -91,8 +94,10 @@ fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
             if (showBottomBar && bottomBarItems.isNotEmpty()) {
                 AppBottomBar(
                     navController = navController,
-                    items = bottomBarItems
+                    items = bottomBarItems,
+                    unreadCount = unreadCount
                 )
+
             }
         }
     ) {
@@ -123,7 +128,7 @@ fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
                 PatientHomeScreen(navController)
             }
             composable(AppRoute.PatientNotificationScreen.route) {
-                PatientNotificationsScreen()
+                PatientNotificationsScreen(navController)
             }
             composable(AppRoute.PatientProfileScreen.route) {
                 PatientProfileScreen(navController)
@@ -167,6 +172,9 @@ fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
             }
             composable(AppRoute.DoctorSlotsScreen.route) {
                 DoctorSlotsScreen(navController)
+            }
+            composable (AppRoute.DoctorNotificationScreen.route){
+                DoctorNotificationsScreen(navController)
             }
         }
     }

@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -55,6 +56,7 @@ import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
 import com.findmydoctor.ctrlpluscare.utils.fetchUserLocation
 import org.koin.compose.viewmodel.koinViewModel
+import java.util.Locale
 
 @Composable
 fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignUpViewModel = koinViewModel()) {
@@ -223,7 +225,7 @@ fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignU
                     onValueChange = {
                         gender = it
                     },
-                    placeholder ="Gender (M/F)" ,
+                    placeholder ="Gender (Male/Female)" ,
                     title = "Gender",
                     icon = Icons.Outlined.Male,
                     isTrailingIcon = false,
@@ -294,7 +296,7 @@ fun PatientSignUpScreen(navController: NavHostController,viewModel: PatientSignU
                         patientProfileRequest = PatientProfileRequest(
                             name = name,
                             age = age.toIntOrNull()?:0,
-                            gender = gender ,
+                            gender = gender.toUpperCase(Locale.ROOT) ,
                             address = address,
                             phoneNumber = phone,
                             height = height,

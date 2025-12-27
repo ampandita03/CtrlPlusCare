@@ -155,7 +155,7 @@ class SlotsImplementation(
         return runCatching {
 
             val token = localStorage.getToken()
-            val response = httpClient.post("${Constants.SERVER_ADDRESS}api/appointments/my") {
+            val response = httpClient.post("${Constants.SERVER_ADDRESS}api/availability") {
                 headers {
                     append(HttpHeaders.ContentType, "application/json")
                     append(HttpHeaders.Authorization, "Bearer $token")

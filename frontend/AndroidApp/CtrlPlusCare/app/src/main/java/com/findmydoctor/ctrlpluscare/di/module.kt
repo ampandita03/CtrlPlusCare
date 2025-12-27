@@ -17,16 +17,22 @@ import com.findmydoctor.ctrlpluscare.domain.usecases.GetAppointmentsUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.GetAvailableSlotsUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.GetDoctorPatientsUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.GetDoctorProfileUseCase
+import com.findmydoctor.ctrlpluscare.domain.usecases.GetNotificationUseCase
+import com.findmydoctor.ctrlpluscare.domain.usecases.MarkAllNotificationUseCase
+import com.findmydoctor.ctrlpluscare.domain.usecases.MarkNotificationUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.NearbyDoctorUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.PatientProfileUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.PatientSignUpUseCase
+import com.findmydoctor.ctrlpluscare.domain.usecases.SetSlotsUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.SignInOtpUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.SignInUseCase
+import com.findmydoctor.ctrlpluscare.domain.usecases.UpdateDoctorProfileUseCase
 import com.findmydoctor.ctrlpluscare.domain.usecases.UpdatePatientProfileUseCase
 import com.findmydoctor.ctrlpluscare.ui.navigation.MainViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorhomescreen.DoctorHomeScreenViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorprofile.DoctorProfileScreenViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorsignup.DoctorSignUpViewModel
+import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorslotsscreen.DoctorSlotsScreenViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.login.LoginViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingconfirmed.BookingConfirmViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingscreen.BookingScreenViewModel
@@ -36,6 +42,7 @@ import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.emergencyscreen.e
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.emergencyscreen.emergencydoctorinfoscreen.EmergencyDoctorInfoViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientdiscoverypage.PatientDiscoveryViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patienthomescreen.PatientHomeScreenViewModel
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.PatientNotificationScreenViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientprofilescreen.PatientProfileScreenViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientsignup.PatientSignUpViewModel
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.schedule.PatientScheduleScreenViewModel
@@ -72,10 +79,10 @@ val module = module {
         BookingConfirmViewModel(get())
     }
     viewModel {
-        MainViewModel(get())
+        MainViewModel(get(),get())
     }
     viewModel {
-        DoctorProfileScreenViewModel(get())
+        DoctorProfileScreenViewModel(get(),get(),get())
     }
     viewModel {
         DoctorSignUpViewModel(get(),get())
@@ -97,6 +104,12 @@ val module = module {
     }
     viewModel {
         DoctorHomeScreenViewModel(get(),get(),get())
+    }
+    viewModel {
+        DoctorSlotsScreenViewModel(get(),get(),get())
+    }
+    viewModel {
+        PatientNotificationScreenViewModel(get(),get(),get())
     }
 
     //repositories
@@ -131,5 +144,9 @@ val module = module {
     single { EmergencyBookingUseCase(get()) }
     single { GetDoctorProfileUseCase(get()) }
     single { GetDoctorPatientsUseCase(get()) }
-
+    single { SetSlotsUseCase(get()) }
+    single { UpdateDoctorProfileUseCase(get()) }
+    single { GetNotificationUseCase(get()) }
+    single { MarkNotificationUseCase(get()) }
+    single { MarkAllNotificationUseCase(get()) }
 }

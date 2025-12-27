@@ -1,9 +1,8 @@
-package com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen
+package com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.notification
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,8 +46,11 @@ import androidx.navigation.NavController
 import com.findmydoctor.ctrlpluscare.data.dto.NotificationItem
 import com.findmydoctor.ctrlpluscare.data.dto.NotificationType
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.TopAppBar
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.MarkNotificationUiState
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.NotificationScreenUiState
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.PatientNotificationScreenViewModel
 import com.findmydoctor.ctrlpluscare.ui.theme.EmergencyRed
-import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
+import com.findmydoctor.ctrlpluscare.ui.theme.SuccessGreen
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.Instant
 import java.time.ZoneId
@@ -56,7 +58,7 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PatientNotificationsScreen(
+fun DoctorNotificationsScreen(
     navController: NavController,
     viewModel: PatientNotificationScreenViewModel = koinViewModel()
 ) {
@@ -94,7 +96,7 @@ fun PatientNotificationsScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = PrimaryBlue)
+                        CircularProgressIndicator(color = SuccessGreen)
                     }
                 }
 
@@ -118,7 +120,7 @@ fun PatientNotificationsScreen(
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     fontWeight = FontWeight.Medium
                                 ),
-                                color = if (unreadCount > 0) PrimaryBlue else Color.Gray
+                                color = if (unreadCount > 0) SuccessGreen else Color.Gray
                             )
 
                             if (unreadCount > 0) {
@@ -127,7 +129,7 @@ fun PatientNotificationsScreen(
                                 ) {
                                     Text(
                                         text = "Mark all as read",
-                                        color = PrimaryBlue,
+                                        color = SuccessGreen,
                                         fontWeight = FontWeight.Medium
                                     )
                                 }
@@ -162,7 +164,7 @@ fun PatientNotificationsScreen(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 items(notifications) { notification ->
-                                    NotificationCard(
+                                    DoctorNotificationCard(
                                         notification = notification,
                                         onMarkAsRead = {
                                             if (!notification.isRead) {
@@ -204,7 +206,7 @@ fun PatientNotificationsScreen(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NotificationCard(
+fun DoctorNotificationCard(
     notification: NotificationItem,
     onMarkAsRead: () -> Unit
 ) {
@@ -212,7 +214,7 @@ fun NotificationCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (notification.isRead) Color.White else Color(0xFFE3F2FD)
+            containerColor = if (notification.isRead) Color.White else Color(0xFFE8F5E9)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (notification.isRead) 1.dp else 2.dp
@@ -231,7 +233,7 @@ fun NotificationCard(
                     .clip(CircleShape)
                     .background(
                         when (notification.type) {
-                            NotificationType.APPOINTMENT -> Color(0xFFE3F2FD)
+                            NotificationType.APPOINTMENT -> Color(0xFFE8F5E9)
                             NotificationType.EMERGENCY -> Color(0xFFFFEBEE)
                         }
                     ),
@@ -244,7 +246,7 @@ fun NotificationCard(
                     },
                     contentDescription = null,
                     tint = when (notification.type) {
-                        NotificationType.APPOINTMENT -> PrimaryBlue
+                        NotificationType.APPOINTMENT -> SuccessGreen
                         NotificationType.EMERGENCY -> EmergencyRed
                     },
                     modifier = Modifier.size(24.dp)
@@ -273,7 +275,7 @@ fun NotificationCard(
                         Icon(
                             imageVector = Icons.Default.Circle,
                             contentDescription = "Unread",
-                            tint = PrimaryBlue,
+                            tint = SuccessGreen,
                             modifier = Modifier.size(8.dp)
                         )
                     }
@@ -296,7 +298,7 @@ fun NotificationCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = formatNotificationTime(notification.createdAt),
+                        text = formatDoctorNotificationTime(notification.createdAt),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray,
                         fontSize = 12.sp
@@ -311,7 +313,7 @@ fun NotificationCard(
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Mark as read",
-                                tint = PrimaryBlue,
+                                tint = SuccessGreen,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -323,12 +325,11 @@ fun NotificationCard(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun formatNotificationTime(timestamp: String): String {
+fun formatDoctorNotificationTime(timestamp: String): String {
     return try {
         val instant = Instant.parse(timestamp)
         val now = Instant.now()
         val notificationTime = instant.atZone(ZoneId.systemDefault())
-        val currentTime = now.atZone(ZoneId.systemDefault())
 
         val minutesDiff = java.time.Duration.between(instant, now).toMinutes()
         val hoursDiff = java.time.Duration.between(instant, now).toHours()

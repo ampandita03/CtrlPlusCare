@@ -64,3 +64,22 @@ data class PatientAppointment(
 )
 
 
+
+@Serializable
+data class UpdateDoctorProfileRequest(
+    val name: String? = null,
+    val clinicAddress: String? = null,
+    val consultationFee: Int? = null,
+    val emergencyFee: Int? = null,
+    val about: String? = null,
+    val profileUrl: String? = null,
+    val clinicLocation: UpdateClinicLocation? = null
+)
+
+
+
+@Serializable
+data class UpdateClinicLocation(
+    val type: String = "Point",
+    val coordinates: List<Double>? = null
+)

@@ -49,6 +49,7 @@ import coil.compose.AsyncImage
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.RequestLocationPermissionOnce
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.SuccessGreen
+import com.findmydoctor.ctrlpluscare.ui.theme.TextDisabled
 import com.findmydoctor.ctrlpluscare.ui.theme.TextPrimary
 import com.findmydoctor.ctrlpluscare.utils.fetchUserLocation
 import org.koin.compose.viewmodel.koinViewModel
@@ -240,7 +241,9 @@ fun DoctorHomeScreen(navController: NavController, viewModel: DoctorHomeScreenVi
 
                     // Appointment Cards
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 15.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         AppointmentCountCard(
@@ -284,8 +287,11 @@ fun DoctorHomeScreen(navController: NavController, viewModel: DoctorHomeScreenVi
                 item {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(BackgroundColor, shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)) // 👈 your desired background
+                            .fillMaxSize()
+                            .background(
+                                BackgroundColor,
+                                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                            ) // 👈 your desired background
                             .padding(vertical = 12.dp)
                     ) {
 
@@ -296,6 +302,13 @@ fun DoctorHomeScreen(navController: NavController, viewModel: DoctorHomeScreenVi
                                     (uiState as DoctorHomeScreenUiState.Success).data.data
                                         .sortedBy { it.date }
 
+
+                                if (appointments.isEmpty()){
+                                    Box(modifier = Modifier.fillMaxWidth().height(370.dp), contentAlignment = Alignment.Center) {
+                                        Text("No Current Appointments", color = TextDisabled, fontSize = 20.sp)
+
+                                    }
+                                }
                                 appointments.forEach { appointment ->
                                     DoctorAppointmentCard(
                                         appointment = appointment,
@@ -324,6 +337,7 @@ fun DoctorHomeScreen(navController: NavController, viewModel: DoctorHomeScreenVi
 
                             DoctorHomeScreenUiState.Idle -> {}
                         }
+                        Spacer(modifier = Modifier.height(300.dp))
                     }
                 }
 

@@ -9,21 +9,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -102,7 +98,8 @@ val doctorBottomBarItems = listOf(
 @Composable
 fun AppBottomBar(
     navController: NavHostController,
-    items: List<BottomBarItem>
+    items: List<BottomBarItem>,
+    unreadCount: Int
 ) {
     val currentRoute =
         navController.currentBackStackEntryAsState().value
@@ -142,24 +139,27 @@ fun AppBottomBar(
                     },
                     icon = item.icon,
                     label = item.label,
-                    tint = item.tint
+                    tint = item.tint,
+                    badgeCount = if (
+                        item.route == AppRoute.PatientNotificationScreen.route ||
+                        item.route == AppRoute.DoctorNotificationScreen.route
+                    ) unreadCount else 0
                 )
+
             }
         }
     }
 }
-
 @Composable
 fun CustomNavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: ImageVector,
     label: String,
-    tint: Color
+    tint: Color,
+    badgeCount: Int = 0
 ) {
-    val iconColor = if (selected) tint else {
-        TextDisabled
-    }
+    val iconColor = if (selected) tint else TextDisabled
     val textColor = if (selected) tint else TextSecondary
 
     Column(
@@ -169,12 +169,33 @@ fun CustomNavigationBarItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = iconColor,
-            modifier = Modifier.size(22.dp)
-        )
+        Box {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = iconColor,
+                modifier = Modifier.size(22.dp)
+            )
+
+            if (badgeCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 6.dp, y = (-6).dp)
+                        .size(16.dp)
+                        .background(Color.Red, shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (badgeCount > 9) "9+" else badgeCount.toString(),
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.offset(y= -4.dp)
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -188,6 +209,7 @@ fun CustomNavigationBarItem(
         )
     }
 }
+
 
 
 
