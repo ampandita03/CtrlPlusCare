@@ -1,0 +1,3 @@
+node_modules
+.dockerignore
+src/config/ctrlpluscare-de810-firebase-adminsdk-fbsvc-9cd32c77ea.json
