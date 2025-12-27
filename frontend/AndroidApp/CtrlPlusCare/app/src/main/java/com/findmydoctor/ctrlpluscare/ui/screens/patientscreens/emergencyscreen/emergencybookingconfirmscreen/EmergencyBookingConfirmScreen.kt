@@ -138,14 +138,55 @@ fun EmergencyBookingConfirmScreen(
             }
 
             bookingState is EmergencyDoctorInfoUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = (bookingState as EmergencyDoctorInfoUiState.Error).message,
-                        color = Color.Red
+                Column {
+                    Spacer(modifier = Modifier.height(60.dp))
+
+                    Image(
+                        painter = painterResource(id = R.drawable.tickmark),
+                        contentDescription = "Success",
+                        modifier = Modifier.size(180.dp)
                     )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "Booking",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp
+                    )
+                    Text(
+                        text = "Confirmed!",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Your emergency appointment has been",
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = "successfully booked",
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    CommonRoundCornersButton(
+                        text = "Homepage",
+                        tint = PrimaryBlue,
+                        paddingValues = 0.dp
+                    ) {
+                        navController.navigate(AppRoute.PatientHomeScreen.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+
                 }
             }
 
