@@ -35,6 +35,13 @@ exports.bookAppointment = async ({
                                      paymentStatus,
                                  }) => {
     // 1️⃣ Check availability
+
+    console.log( doctorId,
+        patientId,
+        date,
+        startTime,
+        endTime,
+        paymentStatus,)
     const slots = await AvailabilityService.getSlotsForDate(doctorId, date);
 
     const isValidSlot = slots.some(
