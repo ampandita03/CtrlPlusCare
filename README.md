@@ -1,6 +1,8 @@
 # CtrlPlusCare – Smart Healthcare Appointment Platform
 https://www.figma.com/design/oEbzavhMMeBtDljKulGn57/Ctrl--Care?node-id=0-1&t=NlGaWfjdgDlMtYLh-1
 
+Video Summary: https://www.youtube.com/watch?v=xud0djKaJEI
+
 CtrlPlusCare is a mobile-first healthcare appointment platform built to simplify doctor discovery, appointment booking, emergency consultations, and real-time notifications.
 
 The project is developed as part of a hackathon / placement-ready system, focusing on clean backend architecture, real-world flows, and scalability.
