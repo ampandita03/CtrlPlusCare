@@ -158,7 +158,7 @@ class SlotsImplementation(
             Log.d("BookSlot", "Raw response body: $rawBody")
 
 
-            if (!response.status.isSuccess()) {
+            if (!response.status.isSuccess()  && response.status.value != 400 ) {
 
                 val errorMessage = parseApiError(
                     rawBody = rawBody,
