@@ -59,6 +59,7 @@ import com.findmydoctor.ctrlpluscare.ui.theme.TextDisabled
 import com.findmydoctor.ctrlpluscare.ui.theme.TextPrimary
 import org.koin.compose.viewmodel.koinViewModel
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -79,14 +80,14 @@ fun DoctorInfoScreen(
     var selectedTimeSlot by remember { mutableStateOf<TimeSlot?>(null) }
 
     val dates = remember {
-        val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val dayFormat = SimpleDateFormat("EEE", Locale.getDefault())
 
         List(7) { index ->
             val date = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_YEAR, index)
+                add(Calendar.DAY_OF_YEAR, index + 1) // 🔥 skip today
             }
+
             DateItem(
                 dayName = dayFormat.format(date.time).take(3),
                 dayNumber = date.get(Calendar.DAY_OF_MONTH),
@@ -94,6 +95,7 @@ fun DoctorInfoScreen(
             )
         }
     }
+
 
     LaunchedEffect(Unit) {
         viewModel.getCurrentDoctor()
@@ -159,7 +161,7 @@ fun DoctorInfoScreen(
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = "Dr. Rishi has done his Degree from E.S.I.C. Medical College and have been practicing for 20+ years. In his career he has seen 50K Patients and multiple operations.",
+                        text = data.about,
                         color = TextDisabled,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = W400,
@@ -209,7 +211,14 @@ fun DoctorInfoScreen(
                             }
                         }
                         is DoctorInfoScreenUiStates.Success -> {
-                            val slots = (uiState as DoctorInfoScreenUiStates.Success).data.data
+                            val rawSlots = (uiState as DoctorInfoScreenUiStates.Success).data.data
+
+                            val slots = rawSlots?.filter { slot ->
+                                isSlotBeyond24Hours(
+                                    date = selectedDate,
+                                    startTime = slot.startTime
+                                )
+                            }
 
                             if (slots.isNullOrEmpty()) {
                                 Text(
@@ -354,5 +363,22 @@ fun TimeSlotCard(
             fontSize = 14.sp,
             fontWeight = W500
         )
+    }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+fun isSlotBeyond24Hours(
+    date: String,       // yyyy-MM-dd
+    startTime: String   // HH:mm
+): Boolean {
+    return try {
+        val slotDateTime = LocalDateTime.parse(
+            "$date $startTime",
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        )
+
+        val limitTime = LocalDateTime.now().plusHours(24)
+        slotDateTime.isAfter(limitTime)
+    } catch (e: Exception) {
+        false
     }
 }

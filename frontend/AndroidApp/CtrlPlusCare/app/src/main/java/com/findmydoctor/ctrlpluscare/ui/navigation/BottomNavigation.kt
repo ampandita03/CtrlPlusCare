@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -76,6 +77,12 @@ val doctorBottomBarItems = listOf(
         route = AppRoute.DoctorHomeScreen.route,
         icon = Icons.Filled.Home,
         label = "Home",
+        SuccessGreen
+    ),
+    BottomBarItem(
+      route = AppRoute.DoctorSlotsScreen.route,
+        icon = Icons.Filled.CalendarMonth,
+        label = "Slots",
         SuccessGreen
     ),
     BottomBarItem(

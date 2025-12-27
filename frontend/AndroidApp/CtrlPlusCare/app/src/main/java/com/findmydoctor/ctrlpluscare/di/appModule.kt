@@ -28,6 +28,7 @@ val appModule = module {
                         ignoreUnknownKeys = true
                         isLenient = true
                         encodeDefaults = true
+                        explicitNulls = false
                     }
                 )
             }

@@ -24,6 +24,7 @@ data class Doctor(
 
     val email: String,
     val phoneNumber: String,
+    val emergencyFee:Int = 500,// "DOCTOR"
 
     val about: String,
     val profileUrl: String,
@@ -55,6 +56,8 @@ data class DoctorSignUpRequest(
     val about: String,
     val profileUrl: String,
     val documentUrl: String,
-    val role: String,      // "DOCTOR"
+    val role: String,
+    val emergencyFee:Int = 500,// "DOCTOR"
     val fcmToken: String
 )
+

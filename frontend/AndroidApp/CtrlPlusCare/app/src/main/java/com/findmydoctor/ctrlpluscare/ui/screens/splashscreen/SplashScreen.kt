@@ -37,10 +37,9 @@ fun SplashScreen(navController: NavHostController,viewModel: SplashScreenViewMod
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            // You don't need to do anything here for now
-        }
+        ) { /* no-op */ }
 
+    // 🔹 Request notification permission (once)
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestPermissionLauncher.launch(
@@ -49,26 +48,35 @@ fun SplashScreen(navController: NavHostController,viewModel: SplashScreenViewMod
         }
     }
 
-    LaunchedEffect(Unit,uiState) {
+    LaunchedEffect(Unit) {
         delay(500)
-
         viewModel.generateFcmToken()
         viewModel.navigate()
-        if (uiState is SplashScreenUiState.Welcome)
-            navController.navigate(AppRoute.Welcome.route){
-                popUpTo(0){inclusive = true}
+    }
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is SplashScreenUiState.Welcome -> {
+                navController.navigate(AppRoute.Welcome.route) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
-        else if (uiState is SplashScreenUiState.PatientHome){
-            navController.navigate(AppRoute.PatientHomeScreen.route){
-                popUpTo(0){inclusive = true}
+
+            is SplashScreenUiState.PatientHome -> {
+                navController.navigate(AppRoute.PatientHomeScreen.route) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
-        }
-        else if (uiState is SplashScreenUiState.DoctorHome){
-            navController.navigate(AppRoute.DoctorHomeScreen.route){
-                popUpTo(0){inclusive = true}
+
+            is SplashScreenUiState.DoctorHome -> {
+                navController.navigate(AppRoute.DoctorHomeScreen.route) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
+
+            else -> Unit
         }
     }
+
 
     Column(
         modifier = Modifier.fillMaxSize().background(color = PrimaryBlue),

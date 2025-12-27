@@ -1,5 +1,6 @@
 package com.findmydoctor.ctrlpluscare.ui.resuablecomponents
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,11 @@ fun TopAppBar(
         Icon(
             imageVector = Icons.Default.ArrowBackIosNew,
             contentDescription = "Back",
-            modifier = Modifier.padding(start = 15.dp, top = 10.dp, bottom = 10.dp).size(25.dp)
+            modifier = Modifier.padding(start = 15.dp, top = 10.dp, bottom = 10.dp).size(25.dp).clickable(
+
+            ){
+                onBackClick()
+            }
         )
 
         Text(

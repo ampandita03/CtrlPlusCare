@@ -10,3 +10,11 @@ class NearbyDoctorUseCase(
         return doctorsInterface.doctorsNearby(longitude, latitude)
     }
 }
+
+class AllDoctorUseCase(
+    private val doctorsInterface: PatientInterface
+) {
+    suspend operator fun invoke(): Result<DoctorResponse> {
+        return doctorsInterface.getAllDoctors()
+    }
+}

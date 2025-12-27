@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
+import com.findmydoctor.ctrlpluscare.ui.navigation.MainViewModel
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.CommonAuthTextField
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.CommonRoundCornersButton
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
@@ -82,6 +83,7 @@ fun LoginScreen(navController: NavController,viewModel: LoginViewModel = koinVie
     }
     LaunchedEffect(uiState is LoginUiStates.LoginSuccess){
         if (uiState is LoginUiStates.LoginSuccess){
+
             if ((uiState as LoginUiStates.LoginSuccess).data.data.user.role == "PATIENT")
             navController.navigate(AppRoute.PatientHomeScreen.route){
                 popUpTo(0){

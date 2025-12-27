@@ -27,7 +27,7 @@ import com.findmydoctor.ctrlpluscare.ui.theme.TextPrimary
 
 
 @Composable
-fun ConsultationFeeCard(fees: Int){
+fun ConsultationFeeCard(fees: Int,isEmergency: Boolean = false,emergenceFees : Int = 0){
     Row(
         Modifier
             .background(
@@ -61,7 +61,7 @@ fun ConsultationFeeCard(fees: Int){
                 )
             )
             Text(
-                text = "₹ $fees Per Appointment",
+                text = if (!isEmergency)"₹ $fees Per Appointment" else "₹ $fees + EmergencyCharges(₹ $emergenceFees)",
                 color = TextPrimary,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = W600,

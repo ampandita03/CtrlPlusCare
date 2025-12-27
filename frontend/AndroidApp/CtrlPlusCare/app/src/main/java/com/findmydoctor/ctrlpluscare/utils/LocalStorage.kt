@@ -5,8 +5,14 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.findmydoctor.ctrlpluscare.data.dto.BookAppointmentRequest
 import com.findmydoctor.ctrlpluscare.data.dto.Doctor
+import com.findmydoctor.ctrlpluscare.data.dto.DoctorProfile
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBookingRequest
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBookingResponse
 import com.findmydoctor.ctrlpluscare.data.dto.Location
+import com.findmydoctor.ctrlpluscare.data.dto.PatientProfileResponse
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -25,18 +31,56 @@ class LocalStorage(private val context: Context) {
         val CURRENT_DOCTOR = stringPreferencesKey("current_doctor") // ✅
 
         val CURRENT_BOOKING = stringPreferencesKey("current_booking")
+        val CURRENT_EMERGENCY_BOOKING = stringPreferencesKey("current_emergency_booking")
 
         val CURRENT_LOCATION = stringPreferencesKey("current_location")
+
+        val PATIENT_PROFILE = stringPreferencesKey("patient_profile")
+        val DOCTOR_PROFILE = stringPreferencesKey("doctor_profile")
 
         val USER_ROLE = stringPreferencesKey("user_role")
     }
 
+    suspend fun savePatientProfile(patientProfileResponse: PatientProfileResponse){
+        val json = Json.encodeToString(patientProfileResponse)
+
+        context.dataStore.edit {
+            it[PATIENT_PROFILE] = json
+        }
+    }
+
+    suspend fun getPatientProfile(): PatientProfileResponse? {
+
+        val prefs = context.dataStore.data.first()
+        val json = prefs[PATIENT_PROFILE] ?: return null
+
+        return Json.decodeFromString<PatientProfileResponse>(json)
+    }
+
+    suspend fun saveDoctorProfile(doctorProfile: DoctorProfile){
+        val json = Json.encodeToString(doctorProfile)
+
+        context.dataStore.edit {
+            it[DOCTOR_PROFILE] = json
+        }
+    }
+    suspend fun getDoctorProfile(): DoctorProfile? {
+
+        val prefs = context.dataStore.data.first()
+        val json = prefs[DOCTOR_PROFILE] ?: return null
+
+        return Json.decodeFromString<DoctorProfile>(json)
+    }
     suspend fun saveCurrentLocation(location: Location){
         val json = Json.encodeToString(location)
         context.dataStore.edit {
             it[CURRENT_LOCATION] = json
         }
     }
+    val userRoleFlow: Flow<String> =
+        context.dataStore.data.map { prefs ->
+            prefs[USER_ROLE] ?: ""
+        }
 
     suspend fun getCurrentLocation(): Location? {
         val prefs = context.dataStore.data.first()
@@ -70,7 +114,17 @@ class LocalStorage(private val context: Context) {
         return Json.decodeFromString<BookAppointmentRequest>(json)
     }
 
-
+    suspend fun saveCurrentEmergencyBooking(emergencyBookingResponse: EmergencyBookingResponse){
+        val json = Json.encodeToString(emergencyBookingResponse)
+        context.dataStore.edit { preferences ->
+            preferences[CURRENT_EMERGENCY_BOOKING] = json
+        }
+    }
+    suspend fun getCurrentEmergencyBooking(): EmergencyBookingResponse? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_EMERGENCY_BOOKING] ?: return null
+        return Json.decodeFromString<EmergencyBookingResponse>(json)
+    }
 
     suspend fun saveFcmToken(token: String) {
         context.dataStore.edit { prefs ->
@@ -120,6 +174,18 @@ class LocalStorage(private val context: Context) {
 
     // Clear all data (Logout)
     suspend fun clearAll() {
-        context.dataStore.edit { it.clear() }
+        context.dataStore.edit { preferences ->
+
+            // 1️⃣ Save FCM token temporarily
+            val fcmToken = preferences[FCM_TOKEN_KEY]
+
+            // 2️⃣ Clear everything
+            preferences.clear()
+
+            // 3️⃣ Restore FCM token
+            if (fcmToken != null) {
+                preferences[FCM_TOKEN_KEY] = fcmToken
+            }
+        }
     }
 }

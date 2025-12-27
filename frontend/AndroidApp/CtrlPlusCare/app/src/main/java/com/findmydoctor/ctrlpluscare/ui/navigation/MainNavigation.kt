@@ -2,14 +2,13 @@ package com.findmydoctor.ctrlpluscare.ui.navigation
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -17,15 +16,21 @@ import androidx.navigation.compose.rememberNavController
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorhomescreen.DoctorHomeScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorprofile.DoctorProfileScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorsignup.DoctorSignUpScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.doctorscreens.doctorslotsscreen.DoctorSlotsScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.login.LoginScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.logintypechoose.LoginTypeChose
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingconfirmed.BookingConfirmScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.bookingscreen.BookingScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.doctorinfoscreen.DoctorInfoScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.emergencyscreen.EmergencyScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.emergencyscreen.emergencybookingconfirmscreen.EmergencyBookingConfirmScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.emergencyscreen.emergencydoctorinfoscreen.EmergencyDoctorInfoScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientdiscoverypage.PatientDiscoveryPage
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patienthomescreen.PatientHomeScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientnotificationscreen.PatientNotificationsScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientprofilescreen.PatientProfileScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientsignup.PatientSignUpScreen
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.schedule.PatientScheduleScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.splashscreen.SplashScreen
 import com.findmydoctor.ctrlpluscare.ui.screens.welcomescreen.WelcomeScreen
 import org.koin.compose.viewmodel.koinViewModel
@@ -34,16 +39,24 @@ import org.koin.compose.viewmodel.koinViewModel
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
-
     val userRole by viewModel.role.collectAsState()
-    LaunchedEffect(Unit) {
-        viewModel.getRole()
+
+
+
+
+    LaunchedEffect(userRole) {
+        Log.d("MainNavigation", "👤 User role updated: [$userRole]")
     }
+
     val navController = rememberNavController()
 
     val currentRoute =
         navController.currentBackStackEntryAsState().value
             ?.destination?.route
+
+    LaunchedEffect(currentRoute) {
+        Log.d("MainNavigation", "📍 Current route: $currentRoute")
+    }
 
     val showBottomBar = currentRoute in listOf(
         AppRoute.PatientHomeScreen.route,
@@ -54,10 +67,23 @@ fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
         AppRoute.DoctorProfileScreen.route
     )
 
+    LaunchedEffect(showBottomBar) {
+        Log.d("MainNavigation", "⬇️ Show bottom bar: $showBottomBar")
+    }
+
     val bottomBarItems = when (userRole) {
-         "PATIENT" -> patientBottomBarItems
-        "DOCTOR" -> doctorBottomBarItems
-        else -> patientBottomBarItems
+        "PATIENT" -> {
+            Log.d("MainNavigation", "🧭 Using PATIENT bottom bar")
+            patientBottomBarItems
+        }
+        "DOCTOR" -> {
+            Log.d("MainNavigation", "🧭 Using DOCTOR bottom bar")
+            doctorBottomBarItems
+        }
+        else -> {
+            Log.w("MainNavigation", "⚠️ Unknown role, defaulting to PATIENT")
+            patientBottomBarItems
+        }
     }
 
     Scaffold(
@@ -124,7 +150,24 @@ fun MainNavigation(viewModel: MainViewModel = koinViewModel()){
             composable (AppRoute.DoctorSignUpScreen.route){
                 DoctorSignUpScreen(navController)
             }
-
+            composable (AppRoute.PatientDiscoveryPage.route){
+                PatientDiscoveryPage(navController)
+            }
+            composable(AppRoute.PatientScheduleScreen.route) {
+                PatientScheduleScreen(navController)
+            }
+            composable(AppRoute.PatientEmergencyScreen.route) {
+                EmergencyScreen(navController)
+            }
+            composable(AppRoute.EmergencyDoctorInfoScreen.route) {
+                EmergencyDoctorInfoScreen(navController)
+            }
+            composable(AppRoute.EmergencyBookingConfirmScreen.route) {
+                EmergencyBookingConfirmScreen(navController)
+            }
+            composable(AppRoute.DoctorSlotsScreen.route) {
+                DoctorSlotsScreen(navController)
+            }
         }
     }
 }

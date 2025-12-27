@@ -2,6 +2,7 @@ package com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patienthomescree
 
 import com.findmydoctor.ctrlpluscare.data.dto.Doctor
 import com.findmydoctor.ctrlpluscare.data.dto.DoctorResponse
+import com.findmydoctor.ctrlpluscare.data.dto.PatientProfileResponse
 
 sealed class PatientHomeScreenUiState {
     object Idle : PatientHomeScreenUiState()
@@ -9,3 +10,6 @@ sealed class PatientHomeScreenUiState {
     data class NearByDoctorsLoaded(val doctors: DoctorResponse) : PatientHomeScreenUiState()
     data class Error(val message:String): PatientHomeScreenUiState()
 }
+
+
+

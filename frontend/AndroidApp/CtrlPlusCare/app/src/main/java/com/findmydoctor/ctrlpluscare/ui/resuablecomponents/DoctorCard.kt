@@ -1,5 +1,6 @@
 package com.findmydoctor.ctrlpluscare.ui.resuablecomponents
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import com.findmydoctor.ctrlpluscare.ui.theme.TextPrimary
 import com.findmydoctor.ctrlpluscare.utils.fetchUserLocation
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun DoctorCard(doctor: Doctor,onClick:()-> Unit,border: Boolean = true,directions: Boolean = false,onDirectionClick:()-> Unit = {},isClickable : Boolean = true ) {
     val context = LocalContext.current
@@ -55,12 +57,21 @@ fun DoctorCard(doctor: Doctor,onClick:()-> Unit,border: Boolean = true,direction
         )
     }
 
-    val distance = remember(userLocation) {
+    var distance = remember(userLocation) {
         userLocation?.let { point2 ->
             calculateDistance(
                 point1 = doctor.clinicLocation.coordinates, // [lng, lat]
                 point2 = point2
             )
+        }
+    }
+    var isKm by remember { mutableStateOf(false) }
+
+    if (distance != null) {
+        if (distance >= 1000.0){
+            isKm = true
+            distance = distance/1000
+            distance = String.format("%.1f", distance).toFloat()
         }
     }
 
@@ -129,7 +140,7 @@ fun DoctorCard(doctor: Doctor,onClick:()-> Unit,border: Boolean = true,direction
                         tint = TextDisabled
                     )
                     Text(
-                        text = "${distance?.toInt()} km away ",
+                        text = if (isKm) "$distance km away" else "${distance?.toInt()} m away",
                         color = TextPrimary,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = W400

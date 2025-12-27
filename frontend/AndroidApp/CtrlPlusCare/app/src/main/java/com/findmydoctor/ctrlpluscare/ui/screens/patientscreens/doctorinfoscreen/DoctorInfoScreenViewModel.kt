@@ -15,24 +15,24 @@ class DoctorInfoScreenViewModel(
     private val getAvailableSlotsUseCase: GetAvailableSlotsUseCase
 ) : ViewModel(){
 
-    private val _doctor = MutableStateFlow<CurrentDoctorUiState>(CurrentDoctorUiState.Loading)
-    val doctor: StateFlow<CurrentDoctorUiState> = _doctor
+        private val _doctor = MutableStateFlow<CurrentDoctorUiState>(CurrentDoctorUiState.Loading)
+        val doctor: StateFlow<CurrentDoctorUiState> = _doctor
 
-    private val _uiState = MutableStateFlow<DoctorInfoScreenUiStates>(DoctorInfoScreenUiStates.Idle)
-    val uiState: StateFlow<DoctorInfoScreenUiStates> = _uiState
+        private val _uiState = MutableStateFlow<DoctorInfoScreenUiStates>(DoctorInfoScreenUiStates.Idle)
+        val uiState: StateFlow<DoctorInfoScreenUiStates> = _uiState
 
 
-    fun getCurrentDoctor(){
-        viewModelScope.launch {
-            val current = localStorage.getCurrentDoctor()
+        fun getCurrentDoctor(){
+            viewModelScope.launch {
+                val current = localStorage.getCurrentDoctor()
 
-            _doctor.value = CurrentDoctorUiState.Success(current!!)
+                _doctor.value = CurrentDoctorUiState.Success(current!!)
+            }
         }
-    }
 
     fun getAvailableSlots(date: String){
         viewModelScope.launch {
-            val doctorId = localStorage.getCurrentDoctor()?.userId
+            val doctorId = localStorage.getCurrentDoctor()?._id
             _uiState.value = DoctorInfoScreenUiStates.Loading
 
             val response = getAvailableSlotsUseCase(doctorId ?: "",date)
@@ -48,7 +48,7 @@ class DoctorInfoScreenViewModel(
     fun saveBookingData(selectedDate: String, startTime : String, endTime : String){
         viewModelScope.launch {
             val booking = BookAppointmentRequest(
-                doctorId = localStorage.getCurrentDoctor()?.userId ?: "",
+                doctorId = localStorage.getCurrentDoctor()?._id ?: "",
                 date = selectedDate,
                 startTime = startTime,
                 endTime = endTime)

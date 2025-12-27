@@ -2,8 +2,13 @@ package com.findmydoctor.ctrlpluscare.data.repository
 
 import android.util.Log
 import com.findmydoctor.ctrlpluscare.constant.Constants
+import com.findmydoctor.ctrlpluscare.data.dto.AppointmentsResponse
 import com.findmydoctor.ctrlpluscare.data.dto.BookAppointmentRequest
 import com.findmydoctor.ctrlpluscare.data.dto.DoctorResponse
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBooking
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBookingRequest
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBookingResponse
+import com.findmydoctor.ctrlpluscare.data.dto.SetSlotsRequest
 import com.findmydoctor.ctrlpluscare.data.dto.TimeSlot
 import com.findmydoctor.ctrlpluscare.data.dto.TimeSlotsResponse
 import com.findmydoctor.ctrlpluscare.domain.interfaces.SlotsInterface
@@ -39,16 +44,14 @@ class SlotsImplementation(
 
             val response = httpClient.get("${Constants.SERVER_ADDRESS}api/availability/slots") {
                 url {
-                    parameters.append("doctorId", doctorId)
+                    parameters.append("doctorId", doctorId) // MUST be valid ObjectId
                     parameters.append("date", date)
-                }
-                headers {
-                    append(HttpHeaders.ContentType, "application/json")
                 }
                 headers {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
             }
+
 
             Log.d("TimeSlot", "⬅️ Response received")
             Log.d("TimeSlot", "Status: ${response.status}")
@@ -97,7 +100,7 @@ class SlotsImplementation(
             val rawBody = response.bodyAsText()
             Log.d("BookSlot", "Raw response body: $rawBody")
 
-            if (!response.status.isSuccess()) {
+            if (!response.status.isSuccess()/* && response.status.value!=400*/) {
                 Log.e(
                     "BookSlot",
                     "❌ Slot booking failed | Status=${response.status} | Body=$rawBody"
@@ -111,8 +114,66 @@ class SlotsImplementation(
         }
     }
 
-    override suspend fun getAppointments() {
+    override suspend fun emergencyBooking(emergencyBookingRequest: EmergencyBookingRequest): Result<EmergencyBookingResponse> {
+        return runCatching {
 
+            val token = localStorage.getToken()
+
+            Log.d("BookSlot", "➡️ Book slot request started")
+            Log.d("BookSlot", "Request body: $emergencyBookingRequest")
+            Log.d("BookSlot", "Token present: ${!token.isNullOrBlank()}")
+
+            val response = httpClient.post("${Constants.SERVER_ADDRESS}api/appointments/book") {
+                headers {
+                    append(HttpHeaders.ContentType, "application/json")
+                    append(HttpHeaders.Authorization, "Bearer $token")
+                }
+                setBody(emergencyBookingRequest)
+            }
+
+            Log.d("BookSlot", "⬅️ Response received")
+            Log.d("BookSlot", "Status: ${response.status}")
+
+            val rawBody = response.bodyAsText()
+            Log.d("BookSlot", "Raw response body: $rawBody")
+
+            if (!response.status.isSuccess()/* && response.status.value!=400*/) {
+                Log.e(
+                    "BookSlot",
+                    "❌ Slot booking failed | Status=${response.status} | Body=$rawBody"
+                )
+                throw Exception("Slot booking failed: ${response.status}")
+            }
+
+            Log.d("BookSlot", "✅ Slot booked successfully")
+
+            response.body<EmergencyBookingResponse>()
+        }
+    }
+
+    override suspend fun setSlots(setSlotsRequest: SetSlotsRequest): Result<Unit> {
+        return runCatching {
+
+            val token = localStorage.getToken()
+            val response = httpClient.post("${Constants.SERVER_ADDRESS}api/appointments/my") {
+                headers {
+                    append(HttpHeaders.ContentType, "application/json")
+                    append(HttpHeaders.Authorization, "Bearer $token")
+                }
+                    setBody(setSlotsRequest)
+            }
+
+            /*Log.d("SignIn","$signInOtp")
+            Log.d("SignIn","${response.body<SignInResult>()}")*/
+
+            if (!response.status.isSuccess()) {
+                val errorBody = response.bodyAsText()
+                throw Exception("OTP verification failed: ${response.status} - $errorBody")
+            }
+
+
+            Unit
+        }
     }
 
 }

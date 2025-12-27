@@ -17,7 +17,16 @@ sealed class AppRoute(val route: String) {
     object DoctorInfoScreen : AppRoute("doctor_info_screen")
     object BookingScreen : AppRoute("booking_screen")
 
+
+    object PatientDiscoveryPage : AppRoute("patient_discovery")
+
+    object PatientEmergencyScreen : AppRoute("emergency")
+
+    object EmergencyDoctorInfoScreen : AppRoute("emergency_doctor_info")
+    object EmergencyBookingConfirmScreen : AppRoute("emergency_booking_confirm")
+    object PatientScheduleScreen : AppRoute("patient_schedule")
     object DoctorHomeScreen : AppRoute("doctor_home")
+    object DoctorSlotsScreen : AppRoute("doctor_slots")
     object DoctorNotificationScreen : AppRoute("doctor_notification")
     object DoctorProfileScreen : AppRoute("doctor_profile")
     object DoctorSignUpScreen : AppRoute("doctor_sign_up")

@@ -1,9 +1,10 @@
 package com.findmydoctor.ctrlpluscare.data.repository
 
 import com.findmydoctor.ctrlpluscare.constant.Constants
-import com.findmydoctor.ctrlpluscare.data.dto.DoctorResponse
-import com.findmydoctor.ctrlpluscare.data.dto.PatientProfileResponse
-import com.findmydoctor.ctrlpluscare.domain.interfaces.PatientInterface
+import com.findmydoctor.ctrlpluscare.data.dto.AppointmentsResponse
+import com.findmydoctor.ctrlpluscare.data.dto.DoctorProfileResponse
+import com.findmydoctor.ctrlpluscare.data.dto.PatientAppointmentResponse
+import com.findmydoctor.ctrlpluscare.domain.interfaces.DoctorsInterface
 import com.findmydoctor.ctrlpluscare.utils.LocalStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -16,23 +17,17 @@ import io.ktor.http.isSuccess
 class DoctorImplementation(
     private val httpClient: HttpClient,
     private val localStorage: LocalStorage
-) : PatientInterface{
-    override suspend fun doctorsNearby(
-        longitude: Double,
-        latitude: Double
-    ): Result<DoctorResponse> {
+) : DoctorsInterface{
+    override suspend fun getDoctorProfile(): Result<DoctorProfileResponse> {
         return runCatching {
-            val testLat = 28.6139
-            val testLong = 77.209
+
             val token = localStorage.getToken()
-            val response = httpClient.get("${Constants.SERVER_ADDRESS}api/doctors/nearby") {
-                url {
-                    parameters.append("lat", latitude.toString())
-                    parameters.append("lng", longitude.toString())
-                }
+            val response = httpClient.get("${Constants.SERVER_ADDRESS}api/doctors/my") {
                 headers {
                     append(HttpHeaders.ContentType, "application/json")
+                    append(HttpHeaders.Authorization, "Bearer $token")
                 }
+
             }
 
             /*Log.d("SignIn","$signInOtp")
@@ -44,21 +39,20 @@ class DoctorImplementation(
             }
 
 
-            response.body<DoctorResponse>()
+            response.body<DoctorProfileResponse>()
         }
     }
 
-    override suspend fun getPatientProfile(): Result<PatientProfileResponse> {
+    override suspend fun getPatients(): Result<PatientAppointmentResponse> {
         return runCatching {
 
             val token = localStorage.getToken()
-            val response = httpClient.get("${Constants.SERVER_ADDRESS}api/patient/profile") {
+            val response = httpClient.get("${Constants.SERVER_ADDRESS}api/appointments/doc") {
                 headers {
                     append(HttpHeaders.ContentType, "application/json")
-                }
-                headers {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
+
             }
 
             /*Log.d("SignIn","$signInOtp")
@@ -70,7 +64,7 @@ class DoctorImplementation(
             }
 
 
-            response.body<PatientProfileResponse>()
+            response.body<PatientAppointmentResponse>()
         }
     }
 }

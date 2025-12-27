@@ -65,6 +65,7 @@ import com.findmydoctor.ctrlpluscare.ui.navigation.AppRoute
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.DoctorCard
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.RequestLocationPermissionOnce
 import com.findmydoctor.ctrlpluscare.ui.resuablecomponents.calculateDistance
+import com.findmydoctor.ctrlpluscare.ui.screens.patientscreens.patientprofilescreen.PatientProfileUiState
 import com.findmydoctor.ctrlpluscare.ui.theme.BackgroundColor
 import com.findmydoctor.ctrlpluscare.ui.theme.EmergencyRed
 import com.findmydoctor.ctrlpluscare.ui.theme.PrimaryBlue
@@ -77,11 +78,14 @@ import org.koin.compose.viewmodel.koinViewModel
 fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScreenViewModel = koinViewModel ()) {
 
     val uiState by viewModel.uiState.collectAsState()
+    val profile by viewModel.profile.collectAsState()
+
     var searchQuery by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.getNearbyDoctors()
+        viewModel.getPatientProfile()
     }
     var locationRequested by remember { mutableStateOf(false) }
 
@@ -90,6 +94,8 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
             locationRequested = true
         }
     }
+
+
 
     if (locationRequested) {
         RequestLocationPermissionOnce(
@@ -119,39 +125,141 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            text = "Welcome!",
-                            color = TextPrimary,
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = W500
-                            )
-                        )
-                        Text(
-                            text = "Ruchita",
-                            color = TextPrimary.copy(alpha = 0.9f),
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = W400
-                            )
-                        )
-                        Text(
-                            text = "How is it going today?",
-                            color = TextPrimary.copy(alpha = 0.5f),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = W400,
-                                fontSize = 19.5.sp
-                            )
-                        )
-                    }
-                    AsyncImage(
-                        model = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbgk0yfCOe55931lf6q0osfhGRU-fnH8Im1g&s",
-                        contentDescription = "Random PFP",
-                        contentScale = ContentScale.Crop,
+                    Box(
                         modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
+                            .fillMaxWidth()
+                            .height(110.dp) // 🔒 SAME HEIGHT FOR ALL STATES
+                    ) {
+                        when (profile) {
 
-                    )
+
+                            is PatientProfileUiState.Error -> {
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Unable to load profile",
+                                        color = Color.Red,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+
+
+                            PatientProfileUiState.Idle -> {
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text("Welcome!", color = TextPrimary)
+                                        Spacer(Modifier.height(6.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .width(140.dp)
+                                                .height(18.dp)
+                                                .background(Color.Transparent)
+                                        )
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .clip(CircleShape)
+                                            .background(Color.Transparent)
+                                    )
+                                }
+                            }
+
+
+                            PatientProfileUiState.Loading -> {
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(20.dp)
+                                                .background(Color.LightGray.copy(alpha = 0.4f))
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .width(160.dp)
+                                                .height(18.dp)
+                                                .background(Color.LightGray.copy(alpha = 0.4f))
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .width(200.dp)
+                                                .height(16.dp)
+                                                .background(Color.LightGray.copy(alpha = 0.3f))
+                                        )
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .clip(CircleShape)
+                                            .background(Color.LightGray.copy(alpha = 0.4f))
+                                    )
+                                }
+                            }
+
+
+                            is PatientProfileUiState.PatientProfileLoaded -> {
+                                val data =
+                                    (profile as PatientProfileUiState.PatientProfileLoaded)
+                                        .patientProfileResponse.data
+
+                                Row(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Welcome!",
+                                            color = TextPrimary,
+                                            style = MaterialTheme.typography.headlineSmall.copy(
+                                                fontWeight = W500
+                                            )
+                                        )
+                                        Text(
+                                            text = data.name,
+                                            color = TextPrimary.copy(alpha = 0.9f),
+                                            style = MaterialTheme.typography.headlineSmall.copy(
+                                                fontWeight = W400
+                                            )
+                                        )
+                                        Text(
+                                            text = data.address,
+                                            color = TextPrimary.copy(alpha = 0.5f),
+                                            style = MaterialTheme.typography.titleLarge.copy(
+                                                fontWeight = W400,
+                                                fontSize = 19.5.sp
+                                            )
+                                        )
+                                    }
+
+                                    AsyncImage(
+                                        model = data.imageLink,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .clip(CircleShape)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+
 
                 }
             }
@@ -189,17 +297,26 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
                     GeneralRoundCornerButtons(
                         color = PrimaryBlue,
                         icon = R.drawable.doctoricon,
-                        title = "Discovery"
+                        title = "Discovery",
+                        onClick = {
+                            navController.navigate(AppRoute.PatientDiscoveryPage.route)
+                        }
                     )
                     GeneralRoundCornerButtons(
                         color = PrimaryBlue,
                         icon = R.drawable.bandage,
-                        title = "Schedule"
+                        title = "Schedule",
+                        onClick = {
+                            navController.navigate(AppRoute.PatientScheduleScreen.route)
+                        }
                     )
                     GeneralRoundCornerButtons(
                         color = EmergencyRed,
                         icon = R.drawable.ambulance,
-                        title = "Emergency"
+                        title = "Emergency",
+                        onClick = {
+                            navController.navigate(AppRoute.PatientEmergencyScreen.route)
+                        }
                     )
                 }
             }
@@ -267,13 +384,16 @@ fun PatientHomeScreen(navController: NavHostController,viewModel: PatientHomeScr
 fun GeneralRoundCornerButtons(
     color: Color,
     icon : Int,
-    title : String
+    title : String,
+    onClick:()-> Unit
 ){
     Column(
         modifier = Modifier.background(
             color = color,
             shape = RoundedCornerShape(30.dp)
-        ).padding(top = 15.dp, start = 8.dp, end = 8.dp, bottom = 10.dp).width(89.dp),
+        ).padding(top = 15.dp, start = 8.dp, end = 8.dp, bottom = 10.dp).width(89.dp).clickable{
+            onClick()
+        },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -329,15 +449,7 @@ fun CustomSearchBar(
                     tint = TextDisabled
                 )
             },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Dehaze,
-                    contentDescription = "Description",
-                    tint = TextDisabled,
-                    modifier = Modifier.padding(end = 10.dp)
-                        /*.clickable{onFilterClick()}*/
-                )
-            },
+
             shape = RoundedCornerShape(50.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = PrimaryBlue.copy(alpha = 0.6f),
