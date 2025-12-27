@@ -1,0 +1,191 @@
+package com.findmydoctor.ctrlpluscare.utils
+
+import android.content.Context
+import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.preferencesDataStore
+import com.findmydoctor.ctrlpluscare.data.dto.BookAppointmentRequest
+import com.findmydoctor.ctrlpluscare.data.dto.Doctor
+import com.findmydoctor.ctrlpluscare.data.dto.DoctorProfile
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBookingRequest
+import com.findmydoctor.ctrlpluscare.data.dto.EmergencyBookingResponse
+import com.findmydoctor.ctrlpluscare.data.dto.Location
+import com.findmydoctor.ctrlpluscare.data.dto.PatientProfileResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+
+
+// Extension property on Context
+private val Context.dataStore by preferencesDataStore(name = "app_prefs")
+
+class LocalStorage(private val context: Context) {
+
+    companion object {
+        val TOKEN_KEY = stringPreferencesKey("token")
+        val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token")
+        val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+
+        val CURRENT_DOCTOR = stringPreferencesKey("current_doctor") // ✅
+
+        val CURRENT_BOOKING = stringPreferencesKey("current_booking")
+        val CURRENT_EMERGENCY_BOOKING = stringPreferencesKey("current_emergency_booking")
+
+        val CURRENT_LOCATION = stringPreferencesKey("current_location")
+
+        val PATIENT_PROFILE = stringPreferencesKey("patient_profile")
+        val DOCTOR_PROFILE = stringPreferencesKey("doctor_profile")
+
+        val USER_ROLE = stringPreferencesKey("user_role")
+    }
+
+    suspend fun savePatientProfile(patientProfileResponse: PatientProfileResponse){
+        val json = Json.encodeToString(patientProfileResponse)
+
+        context.dataStore.edit {
+            it[PATIENT_PROFILE] = json
+        }
+    }
+
+    suspend fun getPatientProfile(): PatientProfileResponse? {
+
+        val prefs = context.dataStore.data.first()
+        val json = prefs[PATIENT_PROFILE] ?: return null
+
+        return Json.decodeFromString<PatientProfileResponse>(json)
+    }
+
+    suspend fun saveDoctorProfile(doctorProfile: DoctorProfile){
+        val json = Json.encodeToString(doctorProfile)
+
+        context.dataStore.edit {
+            it[DOCTOR_PROFILE] = json
+        }
+    }
+    suspend fun getDoctorProfile(): DoctorProfile? {
+
+        val prefs = context.dataStore.data.first()
+        val json = prefs[DOCTOR_PROFILE] ?: return null
+
+        return Json.decodeFromString<DoctorProfile>(json)
+    }
+    suspend fun saveCurrentLocation(location: Location){
+        val json = Json.encodeToString(location)
+        context.dataStore.edit {
+            it[CURRENT_LOCATION] = json
+        }
+    }
+    val userRoleFlow: Flow<String> =
+        context.dataStore.data.map { prefs ->
+            prefs[USER_ROLE] ?: ""
+        }
+
+    suspend fun getCurrentLocation(): Location? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_LOCATION] ?: return null
+        return Json.decodeFromString<Location>(json)
+    }
+
+    suspend fun saveCurrentDoctor(doctor: Doctor) {
+        val json = Json.encodeToString(doctor)
+        context.dataStore.edit { prefs ->
+            prefs[CURRENT_DOCTOR] = json
+        }
+    }
+
+    suspend fun getCurrentDoctor(): Doctor? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_DOCTOR] ?: return null
+        return Json.decodeFromString<Doctor>(json)
+    }
+
+    suspend fun saveCurrentBooking(booking: BookAppointmentRequest){
+        val json = Json.encodeToString(booking)
+        context.dataStore.edit { preferences ->
+            preferences[CURRENT_BOOKING] = json
+        }
+    }
+
+    suspend fun getCurrentBooking(): BookAppointmentRequest? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_BOOKING] ?: return null
+        return Json.decodeFromString<BookAppointmentRequest>(json)
+    }
+
+    suspend fun saveCurrentEmergencyBooking(emergencyBookingResponse: EmergencyBookingResponse){
+        val json = Json.encodeToString(emergencyBookingResponse)
+        context.dataStore.edit { preferences ->
+            preferences[CURRENT_EMERGENCY_BOOKING] = json
+        }
+    }
+    suspend fun getCurrentEmergencyBooking(): EmergencyBookingResponse? {
+        val prefs = context.dataStore.data.first()
+        val json = prefs[CURRENT_EMERGENCY_BOOKING] ?: return null
+        return Json.decodeFromString<EmergencyBookingResponse>(json)
+    }
+
+    suspend fun saveFcmToken(token: String) {
+        context.dataStore.edit { prefs ->
+            prefs[FCM_TOKEN_KEY] = token
+        }}
+    suspend fun getFcmToken(): String? {
+        val prefs = context.dataStore.data.first()
+        return prefs[FCM_TOKEN_KEY]
+    }
+
+
+    suspend fun saveToken(token: String) {
+        context.dataStore.edit { prefs ->
+            prefs[TOKEN_KEY] = token
+        }
+    }
+
+    // Get token
+    suspend fun getToken(): String? {
+        val prefs = context.dataStore.data.first()
+        return prefs[TOKEN_KEY]
+    }
+
+
+    suspend fun  saveUserRole(role:String){
+        context.dataStore.edit {
+            it[USER_ROLE] = role
+        }
+    }
+
+    suspend fun getUserRole(): String?{
+        val prefs = context.dataStore.data.first()
+        return prefs[USER_ROLE]
+    }
+    // Save login state
+    suspend fun setLoggedIn(isLoggedIn: Boolean) {
+        context.dataStore.edit {
+            it[IS_LOGGED_IN] = isLoggedIn
+        }
+    }
+
+    // Read login state
+    suspend fun isLoggedIn(): Boolean {
+        val prefs = context.dataStore.data.first()
+        return prefs[IS_LOGGED_IN] ?: false
+    }
+
+    // Clear all data (Logout)
+    suspend fun clearAll() {
+        context.dataStore.edit { preferences ->
+
+            // 1️⃣ Save FCM token temporarily
+            val fcmToken = preferences[FCM_TOKEN_KEY]
+
+            // 2️⃣ Clear everything
+            preferences.clear()
+
+            // 3️⃣ Restore FCM token
+            if (fcmToken != null) {
+                preferences[FCM_TOKEN_KEY] = fcmToken
+            }
+        }
+    }
+}
