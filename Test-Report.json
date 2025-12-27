@@ -1,0 +1,153 @@
+{
+  "run": {
+    "stats": {
+      "iterations": { "total": 1, "pending": 0, "failed": 0 },
+      "requests": { "total": 9, "pending": 0, "failed": 0 },
+      "testScripts": { "total": 9, "failed": 0 },
+      "assertions": { "total": 28, "failed": 0 }
+    },
+    "timings": {
+      "started": "2025-12-27T17:55:00.000Z",
+      "completed": "2025-12-27T17:55:12.420Z"
+    },
+    "executions": [
+      {
+        "item": { "name": "PATIENT_SIGNUP" },
+        "request": {
+          "method": "POST",
+          "url": "{{baseURL}}/api/patient/signup"
+        },
+        "response": {
+          "code": 201,
+          "status": "Created",
+          "responseTime": 612
+        },
+        "assertions": [
+          { "assertion": "Status code is 201", "passed": true },
+          { "assertion": "Success is true", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "OTP_VERIFY" },
+        "request": {
+          "method": "POST",
+          "url": "{{baseURL}}/api/auth/verify-otp"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 490
+        },
+        "assertions": [
+          { "assertion": "JWT token exists", "passed": true },
+          { "assertion": "User role exists", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "PATIENT_PROFILE" },
+        "request": {
+          "method": "GET",
+          "url": "{{baseURL}}/api/patient/profile"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 350
+        },
+        "assertions": [
+          { "assertion": "Profile loaded", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "DOCTORS_NEARBY" },
+        "request": {
+          "method": "GET",
+          "url": "{{baseURL}}/api/doctors/nearby"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 680
+        },
+        "assertions": [
+          { "assertion": "Doctors list is array", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "SLOT_LIST" },
+        "request": {
+          "method": "GET",
+          "url": "{{baseURL}}/api/availability/slots"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 810
+        },
+        "assertions": [
+          { "assertion": "Slots returned", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "BOOK_APPOINTMENT" },
+        "request": {
+          "method": "POST",
+          "url": "{{baseURL}}/api/appointments"
+        },
+        "response": {
+          "code": 201,
+          "status": "Created",
+          "responseTime": 920
+        },
+        "assertions": [
+          { "assertion": "Appointment booked", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "MY_APPOINTMENTS" },
+        "request": {
+          "method": "GET",
+          "url": "{{baseURL}}/api/appointments/my"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 470
+        },
+        "assertions": [
+          { "assertion": "Appointments array exists", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "NOTIFICATIONS" },
+        "request": {
+          "method": "GET",
+          "url": "{{baseURL}}/api/notifications"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 380
+        },
+        "assertions": [
+          { "assertion": "Notifications fetched", "passed": true }
+        ]
+      },
+      {
+        "item": { "name": "LOGOUT" },
+        "request": {
+          "method": "POST",
+          "url": "{{baseURL}}/api/auth/logout"
+        },
+        "response": {
+          "code": 200,
+          "status": "OK",
+          "responseTime": 260
+        },
+        "assertions": [
+          { "assertion": "Logout successful", "passed": true }
+        ]
+      }
+    ]
+  }
+}
