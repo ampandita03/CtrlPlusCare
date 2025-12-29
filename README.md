@@ -7,6 +7,7 @@ CtrlPlusCare is a mobile-first healthcare appointment platform built to simplify
 
 The project is developed as part of a hackathon / placement-ready system, focusing on clean backend architecture, real-world flows, and scalability.
 
+
 # Key Features
 - Patient
 
